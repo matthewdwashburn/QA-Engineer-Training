@@ -20,10 +20,19 @@ git switch main
 
 ### Virtual Environment
 ```
+<<<<<<< Updated upstream
 python --version
 pip install numpy
 python3 -m venv ./venv # create virtual environment
 source venv/bin/activate
+=======
+python3 --version
+pip install numpy
+python3 -m venv ./venv # create virtual environment
+source venv/bin/activate
+deactivate
+
+>>>>>>> Stashed changes
 ```
 
 **Review Day 1 Python Code** 
