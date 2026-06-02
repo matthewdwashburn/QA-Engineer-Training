@@ -1,2 +1,5 @@
 - Python is strongly typed
 - Ctrl+Shift+V Lets you read markdown in VSCode
+
+## From Python Code Today
+- Functions, classes, inheritance, lambdas
