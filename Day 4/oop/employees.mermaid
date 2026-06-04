@@ -1,0 +1,22 @@
+classDiagram
+    class Employee {
+        <<abstract>>
+        +int _id_counter
+        +String name
+        #String _salary
+        -int employee_id
+        +get_employee_id() int
+        +calculate_pay()
+        +display_info()
+    }
+    class SalariedEmployee {
+        +calculate_pay() String
+    }
+    class HourlyEmployee {
+        +float hourly_rate
+        +int hours_worked
+        +calculate_pay() float
+        +display_info()
+    }
+    SalariedEmployee --|> Employee : extends
+    HourlyEmployee --|> Employee : extends
