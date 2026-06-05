@@ -1,0 +1,5 @@
+2026-06-05 10:14:10 |  DEBUG    | test_framewor:49 | Detailed debug information
+2026-06-05 10:14:10 |  WARNING  | test_framewor:50 | This is a warning
+2026-06-05 10:14:10 |  INFO     | test_framewor:51 | Info message
+2026-06-05 10:14:10 |  ERROR    | test_framewor:52 | Error message
+2026-06-05 10:14:10 |  CRITICAL | test_framewor:53 | Critial Message
