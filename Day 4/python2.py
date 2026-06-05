@@ -131,3 +131,42 @@ print(flattend)
 # Turn list of tuples into list of lists
 list_of_lists_was_list_tuples = [[x for x in tup] for tup in some_tuples]
 print(list_of_lists_was_list_tuples)
+
+# a more functional way and even shorter, that is also good, both are good but this is different
+list_of_names_2 = list(filter(lambda x: x.count('e')>=2, sum(all_data,[])))
+print(list_of_names_2)
+
+# the sum can actually flatten a list of lists to a single list
+print("functional")
+print(sum(all_data,[]))
+
+states = [' Alabama ', 'Georgia!', 'Georgia', 'georgia',
+          'FlOrIda', 'south carolina##', 'West virginia?']
+
+import re
+def clean_strings(strings):
+    result = []
+    for value in strings:
+        value = value.strip()
+        value = re.sub('[!#?]','', value)
+        value = value.title()
+        result.append(value)
+    return result
+
+print(clean_strings(states))
+
+# or instead
+def remove_punctuation(value):
+    return re.sub('[!#?]','', value, flags=re.I)
+
+
+clean_ops = [str.strip, remove_punctuation, str.title]
+
+def clean_strings2(strings, ops):
+    result = []
+    for value in strings:
+        for function in ops:
+            value = function(value)
+            result.append(value)
+    return result
+print(clean_strings2(states, clean_ops))

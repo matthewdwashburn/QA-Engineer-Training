@@ -154,20 +154,28 @@ class MyClass:
     def __init__(self, name="default"):    # constructor, only one allowed
         self.name = name                   # instance variable
 
-    def __str__(self):                     # controls print(obj)
+    def __str__(self):                     # human-readable — controls print(obj) and str(obj)
         return f"name: {self.name}"
 
-    def __repr__(self):                    # should return something that recreates the object
-        return f"MyClass('{self.name}')"
+    def __repr__(self):                    # developer-readable — should recreate the object
+        return f"MyClass('{self.name}')"   # i.e. you could copy-paste this and get the same object
 
     @classmethod
-    def class_method(cls):                 # receives the class, not an instance
+    def class_method(cls):                 # receives the class as first arg — can read/write class state
         return cls.class_var
 
     @staticmethod
-    def static_method():                   # no access to class or instance
+    def static_method():                   # no access to class or instance — just a namespaced utility
         return "utility function"
 ```
+
+**Method type comparison:**
+
+| Type | First arg | Can access | Use when |
+|---|---|---|---|
+| Regular method | `self` (instance) | instance + class state | behaviour tied to a specific object |
+| `@classmethod` | `cls` (class) | class state only | factory methods, shared counters |
+| `@staticmethod` | nothing | neither | utility logic that just lives on the class |
 
 ### Abstract Classes
 

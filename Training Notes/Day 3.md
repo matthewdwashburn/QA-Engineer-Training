@@ -55,6 +55,25 @@ dict(sorted(d.items(), key=lambda item: map[item[0]]))  # sort by external map
 
 ---
 
+## Loop Control
+
+**`while` loop** — repeats as long as condition is true:
+```python
+attempts = 7
+while attempts > 0:
+    guess = int(input("Guess: "))
+    if guess == answer:
+        break          # exit the loop immediately
+    attempts -= 1
+
+if not guessed:
+    print("Out of attempts")
+```
+
+`break` exits the innermost loop. `continue` skips to the next iteration (covered in Day 4).
+
+---
+
 ## Exceptions
 
 ```python
@@ -154,6 +173,31 @@ The `.` in `.module_one` is a **relative import** — refers to a file inside th
 | `input(prompt)` | reads a string from stdin |
 | `int(x)` | convert to int (raises `ValueError` if invalid) |
 | `dir()` | list names in current scope |
+
+---
+
+## String Character Methods
+
+Used to inspect individual characters — commonly combined with `any()` / `all()`:
+```python
+"A".isupper()    # True
+"a".islower()    # True
+"3".isdigit()    # True
+"a".isalpha()    # True  — letter (not digit, not space)
+"a3".isalnum()   # True  — letter or digit
+
+# Membership test — is this character in a string/collection?
+"!" in "!@#$"    # True
+char in special_chars   # works on any iterable
+```
+
+Practical pattern from `validate_password`:
+```python
+has_upper   = any(c.isupper() for c in password)
+has_digit   = any(c.isdigit() for c in password)
+has_special = any(c in "!@#$%^&*" for c in password)
+is_valid    = all([has_upper, has_digit, has_special])
+```
 
 ---
 

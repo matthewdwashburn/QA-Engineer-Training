@@ -1,21 +1,25 @@
 from abc import ABC, abstractmethod
 
+# ABSTRACTION: ABC makes Employee an abstract base class — it can't be instantiated directly
 class Employee(ABC):
-    # class level counter (shared across all employees)
+    # ENCAPSULATION (class variable): shared state owned by the class, not any instance
     _id_counter = 1000
+
     def __init__(self, name, salary):
-        self.name = name # public
-        self._salary = salary # protected, _ convention
-        
-        # auto-generate unique ID
+        # ENCAPSULATION (public): accessible from anywhere
+        self.name = name
+        # ENCAPSULATION (protected): _ signals "don't touch outside class/subclasses" — not enforced by Python
+        self._salary = salary
+
         Employee._id_counter += 1
-        
-        # set id for this employee
+        # ENCAPSULATION (private): __ triggers name mangling, preventing accidental access from outside
         self.__employee_id = Employee._id_counter
 
+    # ENCAPSULATION: controlled read access to a private attribute without exposing it directly
     def get_employee_id(self):
         return self.__employee_id
-    
+
+    # ABSTRACTION: forces every subclass to define its own calculate_pay — the "what" is promised, the "how" is deferred
     @abstractmethod
     def calculate_pay(self):
         pass
@@ -27,21 +31,26 @@ class Employee(ABC):
             f"ID: {self.__employee_id}"
         )
 
+# INHERITANCE: SalariedEmployee gets all of Employee's attributes and methods for free
 class SalariedEmployee(Employee):
-    # abstraction, have to define the abstract classes in child class
+    # POLYMORPHISM: fulfills the abstract contract with its own implementation
     def calculate_pay(self):
         return self._salary
-    
+
+# INHERITANCE: HourlyEmployee also extends Employee but needs extra constructor args
 class HourlyEmployee(Employee):
     def __init__(self, name, hourly_rate, hours_worked):
-        super().__init__(name, hours_worked * hourly_rate) # cast it back up to the employee class
+        # INHERITANCE: super() delegates shared setup (name, salary, ID) to the parent
+        super().__init__(name, hours_worked * hourly_rate)
         self.hours_worked = hours_worked
         self.hourly_rate = hourly_rate
 
+    # POLYMORPHISM: same method name as SalariedEmployee, different behavior
     def calculate_pay(self):
         self._salary = self.hourly_rate * self.hours_worked
         return self._salary
-    
+
+    # POLYMORPHISM (method overriding): replaces Employee.display_info with hourly-specific output
     def display_info(self):
         print(
             f"Name:{self.name}\n"
@@ -55,12 +64,12 @@ emp = SalariedEmployee("Matt", "65000")
 hourly_emp = HourlyEmployee("Will", 10, 40)
 
 print(emp.name)
-print(emp._salary) # Python doesn't enforce protected, but note to developers, don't touch this outside class, unless you have a good reason
-# print(emp.__employee_id) # does not work and private is enforced
-print(emp.get_employee_id()) 
+print(emp._salary)        # accessible but _ signals: don't do this outside the class without good reason
+# print(emp.__employee_id)  # NameError — private name mangling enforces this at runtime
+print(emp.get_employee_id())
 
-print(emp._Employee__employee_id) # bypassed private, name mangling: python rewrites __employee_id as _Employee__employee_id behind the scenes
-# In python the purpose of private access modifier is not security, but for programmers to prevent accidental access
+# NAME MANGLING: Python rewrites __employee_id as _Employee__employee_id internally — this bypasses private, but is intentional bad practice
+print(emp._Employee__employee_id)
 emp.display_info()
 hourly_emp.calculate_pay()
 hourly_emp.display_info()
