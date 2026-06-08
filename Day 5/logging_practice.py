@@ -14,6 +14,7 @@ logging.basicConfig(
     force=True #reset any previous config
 )
 
+# Log in stdout
 logger = logging.getLogger("customLogger")
 # logger.debug("Detailed debug information")
 # logger.warning("This is a warning")
@@ -46,8 +47,20 @@ file_handler.setFormatter(logging.Formatter(
 logger.addHandler(console)
 logger.addHandler(file_handler)
 
+# Log to file demo_output.log
 logger.debug("Detailed debug information")
 logger.warning("This is a warning")
 logger.info("Info message")
 logger.error("Error message")
 logger.critical("Critial Message")
+
+#logging Exceptions
+def divide(a,b):
+    try:
+        return a/b
+    except ZeroDivisionError:
+        logger.error("Division by zero: %s/%s", a,b)
+        return None
+divide(10,0)
+
+
