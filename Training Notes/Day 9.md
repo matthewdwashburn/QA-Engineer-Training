@@ -144,6 +144,7 @@ cat.make_sound()  # Outputs: Meow!
 
 ## Python Decorators
 
+A Python decorator is a design pattern used to modify or extend the behavior of a function or method without changing its actual source code.
 ```
 # 1. Define the decorator function
 def my_logger(func):
