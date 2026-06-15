@@ -1,0 +1,1 @@
+- sysout is a shortcut for system.out.println

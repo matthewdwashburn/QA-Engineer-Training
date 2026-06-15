@@ -81,6 +81,15 @@ class DemoClassesObjects {
             System.out.println("Row " + r + ": " + Arrays.toString(grid[r]));
         }
 
+        //Enhanced for loop
+        System.out.println("Enhanced For Loop");
+        for (int[] row : grid) {
+            System.out.println(Arrays.toString(row));
+            for(int number : row) {
+                System.out.println(number);
+            }
+        }
+
         int[] copy = Arrays.copyOf(scores, scores.length);
 
         Arrays.sort(copy);
