@@ -16,4 +16,12 @@ public class Child extends Parent {
     public Child someMethod(){
         return new Child();
     }
+
+    public String getFavoriteGames() {
+        return favoriteGames;
+    }
+
+    public void setFavoriteGames(String favoriteGames) {
+        this.favoriteGames = favoriteGames;
+    }
 }

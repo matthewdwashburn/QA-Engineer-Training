@@ -10,4 +10,13 @@ public class Parent {
     public Parent someMethod(){
         return new Parent();
     }
+
+    public String getJobTitle() {
+        return jobTitle;
+    }
+
+    public void setJobTitle(String jobTitle) {
+        this.jobTitle = jobTitle;
+    }
+    
 }
