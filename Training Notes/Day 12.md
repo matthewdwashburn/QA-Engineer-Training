@@ -1,4 +1,4 @@
-# Day 12 - Java OOP Deep Dive, Interfaces & JDBC
+# Day 12 - Java OOP Deep Dive, Interfaces, JDBC & Python Interview Review
 
 ---
 
@@ -304,3 +304,32 @@ public class ConnectionUtil {
 | `ResultSet` | cursor over rows returned by a query |
 | `DriverManager` | creates connections from a JDBC URL |
 | `SQLException` | checked exception thrown by all JDBC operations |
+
+---
+
+## Python Interview Review — Cleaning Strings to Alphanumeric
+
+Three approaches to strip non-alphanumeric characters from strings.
+
+### `str.isalnum()` with list comprehension (no imports)
+```python
+mixed_list = ["user_123!", "hello#world", "python3.14"]
+clean_list = ["".join(char for char in item if char.isalnum()) for item in mixed_list]
+# ['user123', 'helloworld', 'python314']
+```
+
+### Same pattern on a single string
+```python
+text = "Hello, World! 123 @Python$"
+cleaned = "".join([char for char in text if char.isalnum()])
+# 'HelloWorld123Python'
+```
+
+### `re.sub()` with negated character class
+```python
+import re
+text = "User_Name! 2026 #Data$"
+cleaned = re.sub(r"[^a-zA-Z0-9]", "", text)
+# 'UserName2026Data'
+# [^a-zA-Z0-9] matches anything that is NOT a letter or digit — replace with ""
+```
