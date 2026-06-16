@@ -49,7 +49,7 @@ for value in sequence:
 words = [word.upper() for word in list_strings if len(word) > 2]
 
 # Nested list — outer loop first, then inner (same order as a nested for loop)
-flat = [x for outer in nested for x in outer if condition]
+flat = [item for bag in shopping_cart for item in bag if condition]
 
 # Set — unique values only, unordered
 lengths = {len(word) for word in list_strings}
