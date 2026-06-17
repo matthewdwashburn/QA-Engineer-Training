@@ -7,7 +7,8 @@ public class DemoMethods {
         System.out.println(DemoMethods.sayHello("Jake"));
 
 
-        DemoMethods demoMethods = new DemoMethods();
+        // DemoMethods demoMethods = new DemoMethods();
+        
 
     }
 
