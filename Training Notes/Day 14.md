@@ -1,0 +1,2 @@
+- DO NOT FORGET THAT == compares REFERENCE and .equals() compares VALUE in Java
+- Ctrl-Shift-P java: clean java language server workspace if java files ever start losing their packages

@@ -1,4 +1,6 @@
 {
     "python.REPL.enableREPLSmartSend": false,
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.server.launchMode": "Standard",
+    "java.autobuild.enabled": true
 }

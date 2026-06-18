@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 public class Launcher {
     public static void main(String[] args) {
+        @SuppressWarnings("unused")
         Employee e1 = new Employee("john", "smith");
 
         EmployeeDAO eDAO = new EmployeeDAO();
@@ -32,12 +33,14 @@ public class Launcher {
 
 
         // Typical javalin object creation syntax
+        @SuppressWarnings("unused")
         var app = Javalin.create( config -> {
             config.routes.get("/hello", ctx -> ctx.result("Hello World"));
             config.routes.post("/login", ac.loginHandler);
             config.routes.get("/employees", ec.getEmployeeHandler);
             config.routes.post("/employees", ec.insertEmployee);
         }).start(3000);
+        
 
     }
 
