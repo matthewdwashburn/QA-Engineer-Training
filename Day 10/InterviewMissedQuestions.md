@@ -40,18 +40,25 @@ raise APIError("Unauthenticated request", status_code=401, payload={"user_id": 4
 ```
 
 ## Pandas Dataframe
+A Pandas DataFrame is a 2 dimensional data structure, like a 2 dimensional array, or a table with rows and columns.
 ```
 import pandas as pd
 
 # Define your data in a dictionary
 data = {
-    "Product": ["Laptop", "Mouse", "Monitor"],
-    "Price": [999, 25, 150],
-    "In_Stock": [True, True, False]
+  "calories": [420, 380, 390],
+  "duration": [50, 40, 45]
 }
 
-# Load the dictionary into a DataFrame object
+#load data into a DataFrame object:
 df = pd.DataFrame(data)
 
-print(df)
+print(df) 
+
 ```
+
+### Output
+     calories  duration
+  0       420        50
+  1       380        40
+  2       390        45

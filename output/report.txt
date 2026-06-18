@@ -1,0 +1,4 @@
+ === Test Run Report === 
+Generated: 2026-06-18T11:12:03.958557
+PASS: LoginTest
+FAIL: CheckoutTest
