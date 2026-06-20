@@ -1,0 +1,27 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "priorityQueueDemo",
+            "request": "launch",
+            "mainClass": "com.revature.QueuesAndDeques.priorityQueueDemo",
+            "projectName": "javaday5"
+        },
+        {
+            "type": "java",
+            "name": "Checker",
+            "request": "launch",
+            "mainClass": "com.revature.Checker",
+            "projectName": "exercises"
+        },
+        {
+            "type": "java",
+            "name": "Launcher (p0demo)",
+            "request": "launch",
+            "mainClass": "com.revature.Launcher",
+            "projectName": "com.revature-p0demo",
+            "cwd": "${workspaceFolder}/Training Projects/p0demo"
+        }
+    ]
+}
