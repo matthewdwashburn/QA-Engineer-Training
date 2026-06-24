@@ -3,6 +3,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "StringSplit",
+            "request": "launch",
+            "mainClass": "src.main.java.com.revature.StringSplit",
+            "projectName": "QA-Engineer-Training_2fe4b088"
+        },
+        {
+            "type": "java",
+            "name": "Kata",
+            "request": "launch",
+            "mainClass": "src.main.java.com.revature.Kata",
+            "projectName": "QA-Engineer-Training_2fe4b088"
+        },
+        {
+            "type": "java",
             "name": "priorityQueueDemo",
             "request": "launch",
             "mainClass": "com.revature.QueuesAndDeques.priorityQueueDemo",

@@ -1,175 +1,201 @@
-- Maven is a dependency management tool for java
-- Every maven project requires GAV depenencies, group id, artifact id, version
+# Day 9 - Maven, Java Memory, OOP & Python Decorators
 
-What are the lifecycle phases of maven?
+---
 
-validate - Check project is correct
-compile	- Compile main sources
-test-compile - Compile tests
-test - Run unit tests (Surefire)
-package - Produce JAR/WAR/etc.
-verify - Run checks (e.g. integration tests)
-install - Put artifact in local ~/.m2 repository
-deploy - Publish to remote repository
+## Maven
 
-Maven Commands
+**Maven** — dependency management and build tool for Java. Every project is identified by **GAV**: Group ID, Artifact ID, Version (defined in `pom.xml`).
 
-mvn clean test
+### Lifecycle Phases (in order)
 
-clean: deletes the target/ directory (removes previous build output/compiled classes)
-test: compiles your main and test source code, then runs the unit tests (via Surefire)
-It does not produce a packaged artifact (no JAR)
+| Phase | What it does |
+|---|---|
+| `validate` | Check project is correct |
+| `compile` | Compile main sources |
+| `test-compile` | Compile test sources |
+| `test` | Run unit tests (Surefire) |
+| `package` | Produce JAR/WAR/etc. |
+| `verify` | Run integration test checks |
+| `install` | Put artifact in local `~/.m2` repository |
+| `deploy` | Publish to remote repository |
 
-mvn clean package
+### Common Commands
 
-clean: same as above
-package: runs everything test does (compile + run tests), and additionally bundles the compiled code into a distributable artifact (e.g., a .jar in target/) as defined by <packaging> in your pom.xml (default is jar)
+```bash
+mvn clean test      # delete target/, compile everything, run tests (no JAR produced)
+mvn clean package   # same as above + bundle compiled code into a .jar in target/
+```
 
-### Java memory management
+---
 
-Java compares memory addresses when you use the == operator on Object references, and it compares actual values when you use the == operator on primitive types or when you use the .equals() method on objects.
+## Java Memory Management
 
-### Python/Java Interview Prep Review
+`==` on **object references** compares memory addresses. `==` on **primitives** compares values. Use `.equals()` to compare object values:
 
-- Write and writelines do not create newlines for you
-- For portable text files, setting encoding='utf-8' in open() is a recommended practice to ensure python reads and writes correctly.
-- JDK install includes javac and is required to compile java on machine
-- JDK (Java Development Kit) is used to create and compile Java software, whereas the JRE (Java Runtime Environment) is only used to run existing Java applications. JRE is included in JDK.
-- You can use == on primatives like int, char, double, but not objects like String, Integer, Scanner, Shape, Etc.
-- The Substring index parameters are not included in the final string output in Java
-- In a Java stack trace, the line that often points to your application code first is typically A frame showing your package/class near the top of the trace (after the exception type)
-- A switch expression with -> arms (Java 14+): does not exhibit classic Fall-through between cases
-- After int n = scanner.nextInt();, reading a full line with scanner.nextLine() sometimes returns empty because: The newline after the number is still in the buffer
-- import java.util.* does not imports all classes in subpackages like java.util.concurrent. Wildcard import is not recursive across subpackages.
-- Using a with statement when opening a file allows the file to be automatically closed when you leave the with statement, so you don't have to manually run file.close()
-- javac compiles Java source code into bytecode stored in .class files. The java launcher loads those classes inthe JVM (Java Virtual Machine) to execute them.
+```java
+// Primitives — == compares values
+int a = 5; int b = 5;
+a == b  // true
 
-SOLID Principles:
+// Objects — == compares references
+String s1 = new String("hello");
+String s2 = new String("hello");
+s1 == s2      // false (different objects in memory)
+s1.equals(s2) // true (same value)
+```
+
+You can use `==` on `int`, `char`, `double`, etc., but **not** on `String`, `Integer`, `Scanner`, or any class.
+
+---
+
+## JDK vs JRE
+
+- **JDK** (Java Development Kit) — includes `javac` (compiler) + JRE. Required to write and compile Java.
+- **JRE** (Java Runtime Environment) — runs existing Java apps. JRE is included inside the JDK.
+- `javac` — compiles `.java` source → `.class` bytecode files
+- `java` — launches the JVM to execute `.class` files
+
+---
+
+## Java / Python Interview Notes
+
+- `import java.util.*` does **not** import subpackages like `java.util.concurrent` — wildcard imports are not recursive
+- `String.substring(start, end)` — `end` index is **exclusive** (not included in result)
+- `switch` expression with `->` arms (Java 14+) — no fall-through between cases
+- After `scanner.nextInt()`, calling `scanner.nextLine()` may return `""` because the newline is still in the buffer — consume it first or use `Integer.parseInt(scanner.nextLine())`
+- `write()` and `writelines()` in Python do **not** add newlines — you must include `\n` yourself
+- Use `encoding='utf-8'` in `open()` for portable text files
+- `with open(...) as f:` — file is automatically closed when the block exits; no need to call `f.close()`
+- In a Java stack trace, your application code appears near the top (after the exception type line)
+
+---
+
+## SOLID Principles
+
 1. **Single Responsibility** — each class/module should do one thing only
-2. **Open/Closed** — open for extension, closed for modification (add new behavior without editing existing code)
+2. **Open/Closed** — open for extension, closed for modification (add behavior without editing existing code)
 3. **Liskov Substitution** — a subclass should be usable anywhere its base class is, without breaking things
 4. **Interface Segregation** — prefer several small, specific interfaces over one large general-purpose one
-5. **Loose Coupling** (Dependency Inversion in spirit) — components should depend on each other as little as possible, so changes 
-don't ripple across the codebase
+5. **Dependency Inversion / Loose Coupling** — components should depend on abstractions, not concretions; changes shouldn't ripple across the codebase
 
-OOP Principles:
-1. Encapsulation: Bundling data (variables) and methods (functions) into a single unit (a class) while restricting direct access to the internal state.
+---
 
-```
+## OOP Principles
+
+### Encapsulation
+
+Bundling data and methods into a class while restricting direct access to internal state via `private` fields and getters/setters:
+
+```python
 class BankAccount:
     def __init__(self, owner, balance):
         self.owner = owner
-        self.__balance = balance  # Double underscore makes it private
+        self.__balance = balance  # double underscore = private
 
-    # Getter method to read data safely
     def get_balance(self):
         return self.__balance
 
-    # Setter method to modify data with validation rules
     def deposit(self, amount):
         if amount > 0:
             self.__balance += amount
-        else:
-            print("Invalid deposit amount!")
 
 account = BankAccount("Alice", 1000)
 account.deposit(500)
-print(account.get_balance())  # Outputs: 1500
-# print(account.__balance)   # Throws an AttributeError (Protected)
+print(account.get_balance())  # 1500
+# account.__balance  # AttributeError — can't access directly
 ```
 
-2. Abstraction: Hiding complex, low-level implementation details and exposing only the essential high-level features.
+### Abstraction
 
-```
+Hiding complex implementation details and exposing only what the caller needs. Use `ABC` + `@abstractmethod` to enforce that subclasses implement required methods:
+
+```python
 from abc import ABC, abstractmethod
 
-class CoffeeMachine(ABC):  # Abstract Class
+class CoffeeMachine(ABC):
     @abstractmethod
     def brew_coffee(self):
         pass
 
 class EspressoMachine(CoffeeMachine):
     def brew_coffee(self):
-        # The user just calls this; the complex heating logic stays inside
         return "Boiling water, grinding beans, forcing steam..."
 
 my_pot = EspressoMachine()
 print(my_pot.brew_coffee())
-
 ```
 
-3. Inheritance: A mechanism where a new class (child/subclass) acquires the attributes and behaviors of an existing class (parent/superclass).
-```
-class Shape:  # Parent Class
+### Inheritance
+
+A child class acquires attributes and behaviors from a parent class. `super().__init__()` calls the parent constructor:
+
+```python
+class Shape:
     def __init__(self, name):
         self.name = name
 
-    def area(self):
-        pass  # Default, to be overridden by child classes
-
-class Circle(Shape):  # Child Class inherits Shape
+class Circle(Shape):
     def __init__(self, radius):
-        super().__init__("Circle")  # Links to the parent constructor
+        super().__init__("Circle")  # calls Shape.__init__
         self.radius = radius
 
     def area(self):
         return 3.14159 * self.radius ** 2
 
 my_circle = Circle(5)
-print(my_circle.name)       # Inherited property: Circle
-print(my_circle.area())     # Overridden method: 78.53975
+print(my_circle.name)   # Circle (inherited)
+print(my_circle.area()) # 78.53975 (overridden)
 ```
 
-4. Polymorphism: The ability of different objects to respond uniquely to the exact same method call. The word literally translates to "many shapes".
-```
+### Polymorphism
+
+Different objects respond differently to the same method call:
+
+```python
 class Animal:
-    def make_sound(self):
-        pass
+    def make_sound(self): pass
 
 class Dog(Animal):
-    def make_sound(self):
-        return "Bark!"
+    def make_sound(self): return "Bark!"
 
 class Cat(Animal):
-    def make_sound(self):
-        return "Meow!"
+    def make_sound(self): return "Meow!"
 
-dog = Dog()
-cat = Cat()
-
-dog.make_sound()  # Outputs: Bark!
-cat.make_sound()  # Outputs: Meow!
-
+dog, cat = Dog(), Cat()
+dog.make_sound()  # Bark!
+cat.make_sound()  # Meow!
 ```
+
+---
 
 ## Python Decorators
 
-A Python decorator is a design pattern used to modify or extend the behavior of a function or method without changing its actual source code.
-```
-# 1. Define the decorator function
+A decorator modifies or extends a function's behavior without changing its source code. Implemented as a function that wraps another function, applied with `@`:
+
+```python
 def my_logger(func):
-    # The inner wrapper captures the original function's arguments
     def wrapper(*args, **kwargs):
         print(f"--> Starting: {func.__name__}")
-        
-        # Execute the original function and save its result
         result = func(*args, **kwargs)
-        
         print(f"--> Finished: {func.__name__}")
         return result
-        
     return wrapper
 
-# 2. Apply the decorator using the @ symbol
 @my_logger
 def add_numbers(a, b):
     return a + b
 
-# 3. Call the function
 total = add_numbers(5, 10)
 print(f"Result: {total}")
-
 ```
 
-- In Flask, how does a URL path (e.g. /items) connect to your Python code?: You register a route with decorators like @app.get("/items") or @app.post(...), which binds that URL to a view function. When a request matches, Flask calls that function and turns its return value into an HTTP response.
-- In Maven, production source code lives in src/main/java, and test code lives in src/test/java
+In Flask, `@app.get("/items")` is a decorator that registers the URL route and binds it to the view function below it.
+
+---
+
+## Maven Project Structure
+
+```
+src/main/java   — production source code
+src/test/java   — test source code
+```

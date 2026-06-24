@@ -13,7 +13,6 @@ public class Casino {
         }
 
     }
-
     public static void gamble(double number) throws LostMoneyException {
         if(number > 0.5) {
             System.out.println("Congrats, you doubled your money!");
