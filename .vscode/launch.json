@@ -3,6 +3,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launcher",
+            "request": "launch",
+            "mainClass": "com.revature.Launcher",
+            "projectName": "javaday19"
+        },
+        {
+            "type": "java",
             "name": "StringSplit",
             "request": "launch",
             "mainClass": "src.main.java.com.revature.StringSplit",

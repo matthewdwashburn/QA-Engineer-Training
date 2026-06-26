@@ -1,0 +1,4 @@
+SELECT co.CONTINENT, FLOOR(AVG(ci.population)) AS AvgCityPopulation
+    FROM COUNTRY co
+    JOIN CITY ci ON co.CODE = ci.COUNTRYCODE
+    GROUP BY co.CONTINENT
