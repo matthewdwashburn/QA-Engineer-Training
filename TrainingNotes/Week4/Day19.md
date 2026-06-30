@@ -225,4 +225,4 @@ ORDER BY apart_count DESC;
 
 ## Notes
 
-**p0 Stretch Goals:** hash passwords, add REST endpoints, write unit & integration tests, output expense info to a file, put output specs in query params/headers,  user input exception handling
+**p0 Stretch Goals:** hash passwords, add REST endpoints, write unit & integration tests, output expense info to a file, put output specs in query params/headers,  user input exception handling, allow password reseting via email.
