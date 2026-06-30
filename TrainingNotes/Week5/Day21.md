@@ -81,6 +81,15 @@
 - Pair programming, pilot (coder) and navigator (High level architechure) can be coding over the shoulder
 - Velocity is the number of story points completed in a sprint
 
+## Story points
+- Story points are used to help give us an estimate, determine difficulty, and prioritization of our use cases.
+
+## Vocab
+**SDLC** - The software development life cycle is a general overview of the process of software development. 
+**Methodology** - The overall strategies for software development. Big Bang, Waterfall, and Agile.
+**Framework** - Specific implementations of methodologies. Such as Scrum, Kanban, and XP.
+**Velocity** - The rate at which your team is able to complete tasks.
+
 ---
 
 ## Pandas — `pd.read_csv()`
@@ -180,9 +189,3 @@ public void ipAddressTest() {
 - Burndown chart = ideal trend line vs actual remaining points per day; gap between the two lines shows if a sprint is ahead/behind
 - `plt.savefig()` instead of `plt.show()` when running headless / generating a file artifact
 - Same IP-address exercise solved in both Python (`exercises_python/ip_address.py`) and Java (`exercises21/CountIPAddresses.java`) — good comparison of `int` overflow handling between languages
-
-## Vocab
-- SDLC
-- Methodology
-- Framework
-- Velocity
