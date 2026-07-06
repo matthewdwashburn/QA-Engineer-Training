@@ -3,6 +3,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Main",
+            "request": "launch",
+            "mainClass": "com.revature.Main",
+            "projectName": "junit-demo"
+        },
+        {
+            "type": "java",
             "name": "Launcher",
             "request": "launch",
             "mainClass": "com.revature.Launcher",
