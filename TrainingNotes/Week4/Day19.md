@@ -225,4 +225,4 @@ ORDER BY apart_count DESC;
 
 ## Notes
 
-**p0 Stretch Goals:** hash passwords, REST Endpoints, write unit & integration tests, logging, output expense info to a file, put output specs in query params/headers,  user input exception handling, allow password reseting via email, python package using streamlit to make frontend look better.
+**p0 Stretch Goals:** batch delete, hash passwords, hide passwords, REST Endpoints, write unit & integration tests, logging, output expense info to a file, put output specs in query params/headers,  user input exception handling, allow password reseting via email, python package using streamlit to make frontend look better.

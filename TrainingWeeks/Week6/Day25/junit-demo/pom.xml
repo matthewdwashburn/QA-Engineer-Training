@@ -22,6 +22,14 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- Pin the v1-protocol launcher so VSCode's Test Runner renders results
+             cleanly instead of dumping the raw %TESTC ... v2 protocol -->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>1.11.4</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>
