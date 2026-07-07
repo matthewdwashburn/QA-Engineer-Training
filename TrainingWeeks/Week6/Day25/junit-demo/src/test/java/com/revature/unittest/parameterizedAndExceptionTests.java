@@ -1,14 +1,17 @@
 package com.revature.unittest;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -169,6 +172,47 @@ public class parameterizedAndExceptionTests {
                 void operation_allValues_valid(Operation op){
                     assertNotNull(op);
                     assertNotNull(op.name());
+                }
+            }
+
+            @Nested
+            @DisplayName("Exception Testing Demo")
+            class Exceptions{
+
+                //assertThrows is the primary tool - returns the exception for inspection
+                //Always verify exception type
+                //verify exception MESSAGE when it contains useful info
+                //assertDoesNotThrow explicityly documents what should not be thrown
+
+                Calculator calculator = new Calculator();
+
+                @Test
+                @DisplayName("Division by zero throws ArithmeticException")
+                void divide_byZero_throwsArithmeticException(){
+                    //Basic usage - just verify exception type
+                    assertThrows((ArithmeticException.class), ()->{
+                        calculator.divide(10,0);
+                    });
+                }
+
+                @Test
+                @DisplayName("Capture exception and verify message")
+                void divide_byZero_exceptionHasCorrectMessage(){
+                    ArithmeticException exception = assertThrows(
+                        ArithmeticException.class, ()->calculator.divide(10,0)
+                    );
+
+                    //now verify the message
+                    assertEquals("Cannot divide by zero", exception.getMessage());
+                }
+
+                @Test
+                @DisplayName("Valid Division does not throw exception")
+                void divide_validInputs_noException(){
+                    //Explicitly verify no exception is thrown
+                    assertDoesNotThrow(()->{
+                        calculator.divide(10, 2);
+                    });
                 }
             }
         }
