@@ -1,0 +1,52 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"
+    This test was executed at: 2026-07-13 10:47:39.092157
+    
+    Dynamic descriptions are useful for:
+    - Adding runtime information
+    - Including environment details
+    - Documenting test conditions
+    ","0","Dynamic Test - 10:47:39","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"Each parameter combination appears as separate test in report.","1","Test is_even with value -3","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"
+    This test demonstrates basic Allure decorators.
+    
+    The docstring becomes the description in the report.
+    ","0","First Allure Pytest Test","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"Each parameter combination appears as separate test in report.","1","Test is_even with value 3","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"Critical tests are highlighted in the report.","0","Critical Severity Test","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"
+    Parameterized addition tests.
+    
+    Allure shows each parameter set in the report.
+    ","0","Test 0 + 0 = 0","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"
+    Parameterized addition tests.
+    
+    Allure shows each parameter set in the report.
+    ","0","Test 1 + 2 = 3","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"
+    Parameterized addition tests.
+    
+    Allure shows each parameter set in the report.
+    ","0","Test 100 + 200 = 300","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"Blocker is the highest severity level.","0","Blocker Severity Test","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"This test is expected to fail.","1","Expected Failure Test","","2026-07-13","skipped","2026-07-13","","demo_allure_pytest_setup","",""
+"Each parameter combination appears as separate test in report.","0","Test is_even with value 0","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"Each parameter combination appears as separate test in report.","0","Test is_even with value 2","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"
+    Parameterized addition tests.
+    
+    Allure shows each parameter set in the report.
+    ","0","Test -1 + 1 = 0","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"Minor tests have low priority.","0","Minor Severity Test","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"Links appear as clickable icons in the report.","0","Test with Documentation Links","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"Each parameter combination appears as separate test in report.","0","Test is_even with value -2","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"This test is skipped and shows in Allure accordingly.","0","Skipped Test","","2026-07-13","skipped","2026-07-13","","demo_allure_pytest_setup","",""
+"Verify addition operation works correctly.","1","Addition Test","","2026-07-13","passed","2026-07-13","TestCalculatorWithAllure","demo_allure_pytest_setup","",""
+"Verify division by zero raises exception.","0","Division by Zero","","2026-07-13","passed","2026-07-13","TestCalculatorWithAllure","demo_allure_pytest_setup","",""
+"
+    @allure.issue links to bug tracker.
+    @allure.testcase links to test management system.
+    ","2","Test with Issue and TMS Links","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"Verify subtraction operation works correctly.","2","Subtraction Test","","2026-07-13","passed","2026-07-13","TestCalculatorWithAllure","demo_allure_pytest_setup","",""
