@@ -98,6 +98,28 @@ IntStream.range(0, t).forEach(i -> {...});          // loop t test cases
 - **Sliding window** (lowest_product): scan `num[i] * num[i+1] * num[i+2] * num[i+3]`, tracking the min. `str(digit)` → `int(...)` to multiply characters of a number string.
 - **Tower builder**: `" " * (n-i-1)` padding + `"*" * (2*i) + "*"` center → each row via string multiplication.
 
+### Python — pandas filtering
+
+Filter a `DataFrame` by applying a predicate to one column *(pandas-practice.py)*:
+
+```python
+import pandas as pd
+
+def filter_dataframe(df, col, func):
+    if col not in df.columns:                 # df.columns = the column labels
+        raise ValueError(f"Column '{col}' is not present in the DataFrame.")
+    valid_rows = pd.Series(df[col]).apply(func)  # .apply → run func on each cell, get a bool Series
+    return df[~valid_rows]                     # ~ inverts the mask; df[mask] keeps rows where True
+```
+
+| Syntax | Meaning |
+|---|---|
+| `df[col]` | Select a column as a `Series` |
+| `col in df.columns` | Membership test against column labels |
+| `series.apply(func)` | Element-wise transform → new `Series` (here, booleans) |
+| `df[bool_series]` | **Boolean-mask indexing** — keep only rows where the mask is `True` |
+| `~mask` | Element-wise NOT — inverts a boolean `Series` (use `&` / `\|` for and/or, not `and`/`or`) |
+
 ### SQL — filtered join with dedup
 
 ```sql
