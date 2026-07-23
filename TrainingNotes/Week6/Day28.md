@@ -49,12 +49,13 @@ def test_add(calculator):        # 'calculator' auto-injected, fresh per test
 
 ### Built-in fixtures
 
-| Fixture | Provides |
-|---|---|
-| `tmp_path` | A unique temp directory (`pathlib.Path`) per test |
-| `capsys` | Captures stdout/stderr → `capsys.readouterr().out` |
+| Fixture       | Provides                                                                     |
+| ------------- | ---------------------------------------------------------------------------- |
+| `tmp_path`    | A unique temp directory (`pathlib.Path`) per test                            |
+| `capsys`      | Captures stdout/stderr → `capsys.readouterr().out`                           |
 | `monkeypatch` | Patch attributes/methods/env vars during a test (`monkeypatch.setattr(...)`) |
-| `request` | Metadata about the running test (`request.node.name`, `request.param`) |
+| `request`     | Metadata about the running test (`request.node.name`, `request.param`)       |
+|               |                                                                              |
 
 ### conftest.py — shared fixtures
 

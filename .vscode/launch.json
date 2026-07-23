@@ -3,6 +3,27 @@
     "configurations": [
         {
             "type": "java",
+            "name": "StringUtils",
+            "request": "launch",
+            "mainClass": "com.revature.StringUtils",
+            "projectName": "junit-assertion-practice"
+        },
+        {
+            "type": "java",
+            "name": "Life",
+            "request": "launch",
+            "mainClass": "com.revature.Life",
+            "projectName": "java-interview-prep"
+        },
+        {
+            "type": "java",
+            "name": "InvalidNameException",
+            "request": "launch",
+            "mainClass": "com.revature.InvalidNameException",
+            "projectName": "interview-prep"
+        },
+        {
+            "type": "java",
             "name": "Main",
             "request": "launch",
             "mainClass": "com.revature.Main",

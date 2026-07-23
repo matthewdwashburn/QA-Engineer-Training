@@ -8,7 +8,7 @@
 
 # Run with this:
     #python -m unittest demo_unittest_basics.py -v
-    #ython -m unittest demo_unittest_basics.TestCalculatorBasic.test_add_returns_sum  -v
+    #python -m unittest demo_unittest_basics.TestCalculatorBasic.test_add_returns_sum  -v
 #Compare WITH PYTEST:
     #pytest demo_unittest_basics.py -v #Pytest can run unittest tests!
 

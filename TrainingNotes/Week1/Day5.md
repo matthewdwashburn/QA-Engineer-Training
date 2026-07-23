@@ -6,7 +6,7 @@
 
 A decorator **wraps a function** to inject behavior before and/or after it runs, without modifying the function itself.
 
-The pattern: an outer function takes the target function as an argument, defines an inner `wrapper` that calls it, and returns the wrapper. The `@syntax` is shorthand — `@my_decorator` above a function is identical to `func = my_decorator(func)`.
+The pattern: an outer function takes the target function as an argument, defines an inner  `wrapper` that calls it, and returns the wrapper. The `@syntax` is shorthand — `@my_decorator` above a function is identical to `func = my_decorator(func)`.
 
 ```python
 def my_decorator(func):

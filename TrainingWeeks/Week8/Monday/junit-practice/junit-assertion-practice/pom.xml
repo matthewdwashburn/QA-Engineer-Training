@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.revature</groupId>
+    <artifactId>junit-assertion-practice</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <junit.version>5.11.4</junit.version>
+    </properties>
+
+    <dependencies>
+            <!-- Source: https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter -->
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <!-- Pin the v1-protocol launcher so VSCode's Test Runner renders results
+                cleanly instead of dumping the raw %TESTC ... v2 protocol -->
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-launcher</artifactId>
+                <version>1.11.4</version>
+                <scope>test</scope>
+            </dependency>
+    </dependencies>
+
+</project>
