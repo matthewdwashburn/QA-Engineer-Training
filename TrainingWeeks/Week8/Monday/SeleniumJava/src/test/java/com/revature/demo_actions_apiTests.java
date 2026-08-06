@@ -286,7 +286,7 @@ public class demo_actions_apiTests {
         driver.get(BASE_URL + "/login");
 
         WebElement usernameInput = driver.findElement(By.id("username"));
-        WebElement passwordInput = driver.findElement(By.id("password"));
+        // WebElement passwordInput = driver.findElement(By.id("password"));
         WebElement loginButton = driver.findElement(By.xpath("//button[@type='submit']"));
 
         // Build a chain of actions

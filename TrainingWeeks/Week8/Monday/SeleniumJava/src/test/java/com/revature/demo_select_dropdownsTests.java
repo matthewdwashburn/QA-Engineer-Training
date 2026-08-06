@@ -312,8 +312,8 @@ public class demo_select_dropdownsTests {
         // The Select class ONLY works with <select> tags
         try {
             // This would fail if element is not a <select>
-            WebElement notASelect = driver.findElement(By.tagName("h3"));
-            Select willFail = new Select(notASelect);
+            // WebElement notASelect = driver.findElement(By.tagName("h3"));
+            // Select willFail = new Select(notASelect);
             fail("Should have thrown exception");
         } catch (UnexpectedTagNameException e) {
             System.out.println("\nSelect class throws UnexpectedTagNameException for non-select elements");

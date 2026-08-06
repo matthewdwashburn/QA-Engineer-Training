@@ -3,10 +3,8 @@ package com.revature;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.*;
-import org.openqa.selenium.support.ui.*;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
-import java.time.Duration;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

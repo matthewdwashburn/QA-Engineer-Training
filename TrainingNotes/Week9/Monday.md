@@ -1,0 +1,3 @@
+
+| **Reports** | Option 3 | Sub-tabs/filters: **By Employee** (`GET /reports/employee?userId=` — needs an employee dropdown from `GET /employees`), **By Category** (`GET /reports/category?category=`), **By Date Range** (`GET /reports/date?startDate=&endDate=` with validation that end ≥ start). Show results in a table + an **Export CSV** button (adds `&export=true`). |
+| ----------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

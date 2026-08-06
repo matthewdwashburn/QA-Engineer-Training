@@ -116,12 +116,12 @@ public class demo_navigation_methodsTests {
     void refresh() {
         driver.get(BASE_URL + "/dynamic_content");
 
-        String contentBefore = driver.getPageSource();
+        // String contentBefore = driver.getPageSource();
 
         // Refresh the page
         driver.navigate().refresh();
 
-        String contentAfter = driver.getPageSource();
+        // String contentAfter = driver.getPageSource();
 
         // Dynamic content page changes on refresh
         System.out.println("Page refreshed!");
