@@ -1,0 +1,114 @@
+package org.example;
+
+import java.util.Arrays;
+import java.util.Objects;
+
+class DemoClassesObjects {
+
+    static class Student {
+        private static int nextId = 1;
+        private static int totalStudents = 0;
+
+        private final int id;
+        private String name;
+
+        static {
+            System.out.println(" [static block] Student class loaded");
+        }
+
+        Student(String name) {
+            this.id = nextId++;
+            this.name = name;
+            totalStudents++;
+        }
+
+        public static int getTotalStudents() {
+            return totalStudents;
+        }
+
+        public static void setTotalStudents(int totalStudents) {
+            Student.totalStudents = totalStudents;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return "Student{" +
+                    "id=" + id +
+                    ", name='" + name + '\'' +
+                    '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            Student student = (Student) o;
+            return id == student.id && Objects.equals(name, student.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, name);
+        }
+    }
+
+    public static void main(String[] args) {
+        int[] scores = {72, 91, 68, 88};
+
+        System.out.println("--- classic for (index needed) ---");
+        for (int i=0; i<scores.length; i++){
+            System.out.println("index +" + i + "=>" + scores[i]);
+        }
+
+        System.out.println("\n--- multidimensional (array of arrays) ---");
+        int[][] grid = {
+                {1,2,3},
+                {4,5},
+                {6,7,8,9}
+        };
+
+        for(int r = 0; r < grid.length; r++) {
+            System.out.println("row " + r + ": + " + Arrays.toString(grid[r]));
+        }
+
+        //enhanced for loop
+        System.out.println("Enhanced For Loop");
+        for (int[] row: grid){
+            System.out.println(Arrays.toString(row));
+        }
+
+        System.out.println("Enhanced For Loop");
+        for (int[] row: grid){
+            System.out.println(Arrays.toString(row));
+            for(int number: row){
+                System.out.println(number);
+            }
+
+        }
+        //
+
+        System.out.println("\n--- Array utility ---");
+        int[] copy = Arrays.copyOf(scores,scores.length);
+        Arrays.sort(copy);
+        System.out.println("sorted" + Arrays.toString(copy));
+        System.out.println("binarySearch 88:" + Arrays.binarySearch(copy,88));
+
+    }
+}
+
+
+
+
+
+

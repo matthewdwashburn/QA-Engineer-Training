@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.revature.expensemanager</groupId>
+    <artifactId>load-tests</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <!-- No sources: this module only runs the JMeter plans. -->
+    <packaging>pom</packaging>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Defaults target the dev stack; the pipeline overrides with -D. -->
+        <manager.host>localhost</manager.host>
+        <manager.port>7001</manager.port>
+        <employee.host>localhost</employee.host>
+        <employee.port>5000</employee.port>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>collect-test-plans</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Plans stay owned by their own module; gathered to run as one suite. -->
+                            <outputDirectory>${project.build.directory}/jmeter-plans</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/../manager-app/src/test/jmeter</directory>
+                                </resource>
+                                <resource>
+                                    <directory>${project.basedir}/../employee_app/tests/jmeter</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>com.lazerycode.jmeter</groupId>
+                <artifactId>jmeter-maven-plugin</artifactId>
+                <version>3.8.0</version>
+                <executions>
+                    <!-- Must be named "configuration": the jmeter and results goals look
+                         up this execution via selectedConfiguration, which defaults to it. -->
+                    <execution>
+                        <id>configuration</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>configure</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>performance-tests</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>jmeter</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>verify-results</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>results</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!-- Staging dir, not target/jmeter/testFiles: the plugin copies into that. -->
+                    <testFilesDirectory>${project.build.directory}/jmeter-plans</testFilesDirectory>
+                    <generateReports>true</generateReports>
+                    <!-- Suite-wide, and measured at 0.0% on Postgres. Sized so the worst
+                         plausible non-regression still passes: if every login sample in the
+                         write plan broke its 2s assertion that is 100/6800 = 1.47%. -->
+                    <errorRateThresholdInPercent>2</errorRateThresholdInPercent>
+                    <!-- user.properties, which is where JMeter's __P() reads from. -->
+                    <propertiesUser>
+                        <manager.host>${manager.host}</manager.host>
+                        <manager.port>${manager.port}</manager.port>
+                        <employee.host>${employee.host}</employee.host>
+                        <employee.port>${employee.port}</employee.port>
+                    </propertiesUser>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

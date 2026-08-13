@@ -1,0 +1,12 @@
+docker run -d --name allure \
+  -p 5050:5050 \
+  -e CHECK_RESULTS_EVERY_SECONDS=5 \
+  -e KEEP_HISTORY=1 \
+  -v "$(pwd)/allure-results:/app/allure-results" \
+  -v "$(pwd)/allure-reports:/app/default-reports" \
+  frankescobar/allure-docker-service
+
+
+curl http://localhost:5050/generate-report
+
+http://localhost:5050/latest-report

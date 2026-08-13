@@ -1,0 +1,6 @@
+id,title,story_points,notes
+US-101,As a reader I want to filter books by genre so I can browse faster,3,Depends on catalog API
+US-102,As a reader I want saved wishlists,5,Needs auth story first
+US-103,As an admin I want export sales CSV,8,Risk: large files
+US-104,Fix wrong tax on international checkout,5,Prod bug; high priority
+US-105,Spike: evaluate payment provider SDK,2,Time-box 1 day; no shippable feature

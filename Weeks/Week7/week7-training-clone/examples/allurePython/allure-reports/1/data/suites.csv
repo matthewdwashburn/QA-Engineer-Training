@@ -1,0 +1,71 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"This test is skipped and shows in Allure accordingly.","0","Skipped Test","","2026-07-13","skipped","2026-07-13","","demo_allure_pytest_setup","",""
+"Each parameter combination appears as separate test in report.","2","Test is_even with value 2","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"
+This test verifies the complete login workflow including:
+- Navigation to login page
+- Form submission
+- Dashboard verification
+- Session validation
+
+Preconditions:
+- User account exists
+- No active sessions
+","40","Complete Login Test with Full Reporting","","2026-07-13","passed","2026-07-13","","demo_allure_python_features","",""
+"Simulates API test with request/response attachments.","25","Test with Request/Response Logging","","2026-07-13","passed","2026-07-13","","demo_allure_python_features","",""
+"Test that uses fixture data logged to Allure.","1","Test using fixture with Allure attachment","","2026-07-13","passed","2026-07-13","","demo_allure_python_features","",""
+"Minor tests have low priority.","3","Minor Severity Test","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"
+    This test demonstrates basic Allure decorators.
+    
+    The docstring becomes the description in the report.
+    ","0","First Allure Pytest Test","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"Demonstrates nested steps for complex workflows.","38","Complete Order with Nested Steps","","2026-07-13","passed","2026-07-13","","demo_allure_python_features","",""
+"Verify division by zero raises exception.","1","Division by Zero","","2026-07-13","passed","2026-07-13","TestCalculatorWithAllure","demo_allure_pytest_setup","",""
+"This test is expected to fail.","2","Expected Failure Test","","2026-07-13","skipped","2026-07-13","","demo_allure_pytest_setup","",""
+"Each parameter combination appears as separate test in report.","3","Test is_even with value 3","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"
+    This test was executed at: 2026-07-13 11:35:26.186944
+    
+    Dynamic descriptions are useful for:
+    - Adding runtime information
+    - Including environment details
+    - Documenting test conditions
+    ","1","Dynamic Test - 11:35:26","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"Uses step functions for cleaner test code.","6","Registration Flow with Step Functions","","2026-07-13","passed","2026-07-13","","demo_allure_python_features","",""
+"Demonstrates step blocks for login workflow.","3","Login Flow with Steps","","2026-07-13","passed","2026-07-13","","demo_allure_python_features","",""
+"Critical tests are highlighted in the report.","0","Critical Severity Test","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"
+    Parameterized addition tests.
+    
+    Allure shows each parameter set in the report.
+    ","1","Test 100 + 200 = 300","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"Shopping cart workflow with detailed steps.","16","Shopping Cart Flow","","2026-07-13","passed","2026-07-13","","demo_allure_python_features","",""
+"Blocker is the highest severity level.","2","Blocker Severity Test","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"
+    Parameterized addition tests.
+    
+    Allure shows each parameter set in the report.
+    ","1","Test 1 + 2 = 3","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"
+    Parameterized addition tests.
+    
+    Allure shows each parameter set in the report.
+    ","9","Test 0 + 0 = 0","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"Verify subtraction operation works correctly.","3","Subtraction Test","","2026-07-13","passed","2026-07-13","TestCalculatorWithAllure","demo_allure_pytest_setup","",""
+"Each parameter combination appears as separate test in report.","3","Test is_even with value -3","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"Demonstrates different attachment types.","37","Test with Various Attachments","","2026-07-13","passed","2026-07-13","","demo_allure_python_features","",""
+"
+    @allure.issue links to bug tracker.
+    @allure.testcase links to test management system.
+    ","2","Test with Issue and TMS Links","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"Each parameter combination appears as separate test in report.","2","Test is_even with value -2","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"Demonstrates adding parameters to test report.","11","Test with dynamic parameters","","2026-07-13","passed","2026-07-13","","demo_allure_python_features","",""
+"Verify addition operation works correctly.","1","Addition Test","","2026-07-13","passed","2026-07-13","TestCalculatorWithAllure","demo_allure_pytest_setup","",""
+"
+    Parameterized addition tests.
+    
+    Allure shows each parameter set in the report.
+    ","1","Test -1 + 1 = 0","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"Each parameter combination appears as separate test in report.","1","Test is_even with value 0","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""
+"Links appear as clickable icons in the report.","0","Test with Documentation Links","","2026-07-13","passed","2026-07-13","","demo_allure_pytest_setup","",""

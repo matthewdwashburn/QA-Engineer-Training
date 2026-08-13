@@ -1,0 +1,4 @@
+2026-06-19 10:31:51,619 DEBUG com.revature.LoggingFun.DemoLogbackSetup - debug: configuration loaded
+2026-06-19 10:31:51,627 INFO  com.revature.LoggingFun.DemoLogbackSetup - info: demo main started
+2026-06-19 10:31:51,628 WARN  com.revature.LoggingFun.DemoLogbackSetup - warn: example
+2026-06-19 10:31:51,628 ERROR com.revature.LoggingFun.DemoLogbackSetup - error: example error without exception

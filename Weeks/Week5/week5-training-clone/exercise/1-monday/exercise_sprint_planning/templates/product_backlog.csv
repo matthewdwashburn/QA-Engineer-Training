@@ -1,0 +1,9 @@
+id,title,notes_for_team_discussion
+US-201,As a clinic admin I want role-based access so only authorized staff see PHI,
+US-202,As a clinician I want daily readmission risk trends filtered by ward,
+US-203,As compliance I want an exportable audit trail of dashboard views,hint: cross-cutting; may need spike
+US-204,As a user I want CSV export of a dashboard slice,large file edge cases
+US-205,Spike: evaluate hosted SIEM vs self-managed for log retention,time-box; may not ship user value
+US-206,As a user I want dark mode,
+US-207,Fix incorrect mortality rate when denominator is zero,production defect; data-sensitive
+US-208,As a user I want SSO with hospital IdP,integration uncertainty

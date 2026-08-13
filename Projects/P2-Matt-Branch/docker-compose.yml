@@ -1,0 +1,79 @@
+services:
+  # One-shot job: creates and seeds the SQLite database on the shared volume,
+  # then exits. Reuses the employee image because init_db.py imports the
+  # employee app's repository and service classes to hash the seeded passwords.
+  db-init:
+    build:
+      context: .
+      dockerfile: employee_app/Dockerfile
+    # Replaces the image's CMD. Same image, different job.
+    command: python /app/db-init/init_db.py
+    environment:
+      # Sends the database to the volume instead of next to the script.
+      DB_PATH: /app/database/expense_manager.db
+    volumes:
+      - ./database:/app/database
+    # This container is supposed to exit. Without this, Docker would keep
+    # restarting it and it would wipe the database every time.
+    restart: "no"
+
+  employee-app:
+    build:
+      context: .
+      dockerfile: employee_app/Dockerfile
+    environment:
+      JWT_SECRET: local-employee-secret
+      JWT_EXPIRATION_HOURS: 24
+      # Origins the browser may call this API from. Must list every address the
+      # frontend is reachable at, since setting this replaces the defaults.
+      CORS_ORIGINS: "http://localhost:5173,http://127.0.0.1:5173,http://${HOST_ADDRESS}:5173"
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./database:/app/database
+    depends_on:
+      db-init:
+        # Waits for db-init to finish and exit 0, not merely to start.
+        condition: service_completed_successfully
+
+  manager-app:
+    # Everything this build needs lives inside manager-app/, so the context is
+    # that folder and the default Dockerfile name applies.
+    build:
+      context: ./manager-app
+    environment:
+      JWT_SECRET: local-manager-secret
+      JWT_EXPIRATION_HOURS: 24
+      CORS_ORIGINS: "http://localhost:5173,http://127.0.0.1:5173,http://${HOST_ADDRESS}:5173"
+    ports:
+      - "7001:7001"
+    volumes:
+      - ./database:/app/database
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      # Vite inlines these into the bundle it serves. The browser resolves them,
+      # so they must be an address the viewer's machine can reach - not a
+      # compose service name and not 127.0.0.1 when served from EC2.
+      VITE_EMPLOYEE_API_URL: "http://${HOST_ADDRESS}:5000"
+      VITE_MANAGER_API_URL: "http://${HOST_ADDRESS}:7001"
+      # Vite refuses requests with an unrecognized Host header.
+      VITE_ALLOWED_HOSTS: "true"
+    ports:
+      - "5173:5173"
+    volumes:
+      # Live source for hot reload: edit on the host, Vite reloads.
+      - ./frontend/src:/app/src
+      # Anonymous volume so a host node_modules cannot shadow the one npm ci
+      # installed inside the image.
+      - /app/node_modules
+    # Ordering only. The browser calls the backends directly, so the frontend
+    # does not need them reachable at startup.
+    depends_on:
+      - employee-app
+      - manager-app

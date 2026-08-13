@@ -1,0 +1,8 @@
+com\training\week4sql\pair\dao\JdbcProductDao.class
+com\training\week4sql\pair\domain\CustomerOrder.class
+com\training\week4sql\pair\dao\JdbcOrderDao.class
+com\training\week4sql\pair\domain\Product.class
+com\training\week4sql\pair\dao\OrderDao.class
+com\training\week4sql\pair\dao\ProductDao.class
+com\training\week4sql\pair\domain\OrderLine.class
+com\training\week4sql\pair\App.class

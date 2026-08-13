@@ -1,0 +1,10 @@
+%% Optional: paste your final hierarchy here after whiteboard
+classDiagram
+    class Vehicle {
+        <<abstract>>
+        +fuelCostPer100Km()* double
+    }
+    class GasCar
+    class ElectricCar
+    Vehicle <|-- GasCar
+    Vehicle <|-- ElectricCar

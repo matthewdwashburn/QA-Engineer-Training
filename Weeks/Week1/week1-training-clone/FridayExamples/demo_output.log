@@ -1,0 +1,6 @@
+2026-06-05 11:18:14 | DEBUG    | test_framework:50 | Detailed debug information
+2026-06-05 11:18:14 | WARNING  | test_framework:51 | this is a warning
+2026-06-05 11:18:14 | INFO     | test_framework:52 | info message
+2026-06-05 11:18:14 | ERROR    | test_framework:53 | error message
+2026-06-05 11:18:14 | CRITICAL | test_framework:54 | Critical Message
+2026-06-05 11:18:14 | ERROR    | test_framework:62 | Division by zero: 10/0

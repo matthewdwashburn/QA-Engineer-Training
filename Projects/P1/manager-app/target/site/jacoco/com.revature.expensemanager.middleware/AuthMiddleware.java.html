@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthMiddleware.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">manager-app</a> &gt; <a href="index.source.html" class="el_package">com.revature.expensemanager.middleware</a> &gt; <span class="el_source">AuthMiddleware.java</span></div><h1>AuthMiddleware.java</h1><pre class="source lang-java linenums">package com.revature.expensemanager.middleware;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.revature.expensemanager.dto.ErrorResponse;
+import com.revature.expensemanager.service.JwtService;
+
+import io.javalin.http.Context;
+import io.javalin.http.HandlerType;
+import io.javalin.http.HttpStatus;
+
+public class AuthMiddleware {
+<span class="fc" id="L16">    private static final Logger logger = LoggerFactory.getLogger(AuthMiddleware.class);</span>
+
+    private final JwtService jwtService;
+
+<span class="fc" id="L20">    public AuthMiddleware(JwtService jwtService) {</span>
+<span class="fc" id="L21">        this.jwtService = jwtService;</span>
+<span class="fc" id="L22">    }</span>
+
+    public void requireManager(Context ctx) {
+        // CORS preflight requests carry no credentials by design; let the
+        // CORS plugin answer them instead of rejecting with a 401.
+<span class="pc bpc" id="L27" title="1 of 2 branches missed.">        if (ctx.method() == HandlerType.OPTIONS) {</span>
+<span class="nc" id="L28">            return;</span>
+        }
+
+<span class="fc" id="L31">        String authHeader = ctx.header(&quot;Authorization&quot;);</span>
+
+<span class="fc bfc" id="L33" title="All 4 branches covered.">        if (authHeader == null || authHeader.isBlank()) {</span>
+<span class="fc" id="L34">            logger.warn(&quot;Authorization failed: missing Authorization header.&quot;);</span>
+
+<span class="fc" id="L36">            ctx.status(HttpStatus.UNAUTHORIZED)</span>
+<span class="fc" id="L37">                    .json(new ErrorResponse(&quot;Authorization header is required.&quot;));</span>
+<span class="fc" id="L38">            ctx.skipRemainingHandlers();</span>
+<span class="fc" id="L39">            return;</span>
+        }
+
+<span class="fc bfc" id="L42" title="All 2 branches covered.">        if (!authHeader.startsWith(&quot;Bearer &quot;)) {</span>
+<span class="fc" id="L43">            logger.warn(&quot;Authorization failed: Authorization header did not use Bearer scheme.&quot;);</span>
+
+<span class="fc" id="L45">            ctx.status(HttpStatus.UNAUTHORIZED)</span>
+<span class="fc" id="L46">                    .json(new ErrorResponse(&quot;Authorization header must use Bearer token.&quot;));</span>
+<span class="fc" id="L47">            ctx.skipRemainingHandlers();</span>
+<span class="fc" id="L48">            return;</span>
+        }
+
+<span class="fc" id="L51">        String token = authHeader.substring(&quot;Bearer &quot;.length());</span>
+
+        try {
+<span class="fc" id="L54">            DecodedJWT decodedJWT = jwtService.validateToken(token);</span>
+<span class="fc" id="L55">            Integer userId = jwtService.getUserId(decodedJWT);</span>
+<span class="fc" id="L56">            String username = jwtService.getUsername(decodedJWT);</span>
+<span class="fc" id="L57">            String role = jwtService.getRole(decodedJWT);</span>
+
+<span class="fc bfc" id="L59" title="All 8 branches covered.">            if (userId == null || username == null || username.isBlank()</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">                    || role == null || role.isBlank()) {</span>
+
+<span class="fc" id="L62">                logger.warn(&quot;Authorization failed: token had missing or invalid claims.&quot;);</span>
+
+<span class="fc" id="L64">                ctx.status(HttpStatus.UNAUTHORIZED)</span>
+<span class="fc" id="L65">                        .json(new ErrorResponse(&quot;Invalid token claims.&quot;));</span>
+<span class="fc" id="L66">                ctx.skipRemainingHandlers();</span>
+<span class="fc" id="L67">                return;</span>
+            }
+
+<span class="fc bfc" id="L70" title="All 2 branches covered.">            if (!role.equalsIgnoreCase(&quot;manager&quot;)) {</span>
+<span class="fc" id="L71">                logger.warn(&quot;Authorization denied: userId={}, username={}, role={} attempted manager access.&quot;,</span>
+                        userId,
+                        username,
+                        role);
+
+<span class="fc" id="L76">                ctx.status(HttpStatus.FORBIDDEN)</span>
+<span class="fc" id="L77">                        .json(new ErrorResponse(&quot;Manager access required.&quot;));</span>
+<span class="fc" id="L78">                ctx.skipRemainingHandlers();</span>
+<span class="fc" id="L79">                return;</span>
+            }
+
+<span class="fc" id="L82">            logger.info(&quot;Manager authorized: userId={}, username={}&quot;, userId, username);</span>
+
+<span class="fc" id="L84">            ctx.attribute(&quot;userId&quot;, userId);</span>
+<span class="fc" id="L85">            ctx.attribute(&quot;username&quot;, username);</span>
+<span class="fc" id="L86">            ctx.attribute(&quot;role&quot;, role);</span>
+
+<span class="fc" id="L88">        } catch (JWTVerificationException e) {</span>
+<span class="fc" id="L89">            logger.warn(&quot;Authorization failed: invalid or expired JWT.&quot;);</span>
+
+<span class="fc" id="L91">            ctx.status(HttpStatus.UNAUTHORIZED)</span>
+<span class="fc" id="L92">                    .json(new ErrorResponse(&quot;Invalid or expired token.&quot;));</span>
+<span class="fc" id="L93">            ctx.skipRemainingHandlers();</span>
+<span class="fc" id="L94">        }</span>
+<span class="fc" id="L95">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

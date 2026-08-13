@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExpenseController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">manager-app</a> &gt; <a href="index.source.html" class="el_package">com.revature.expensemanager.controller</a> &gt; <span class="el_source">ExpenseController.java</span></div><h1>ExpenseController.java</h1><pre class="source lang-java linenums">package com.revature.expensemanager.controller;
+
+import io.javalin.http.Context;
+import io.javalin.http.HttpStatus;
+
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.revature.expensemanager.dto.ApprovalRequest;
+import com.revature.expensemanager.dto.ErrorResponse;
+import com.revature.expensemanager.model.Expense;
+import com.revature.expensemanager.service.ExpenseService;
+
+public class ExpenseController {
+<span class="fc" id="L18">    private static final Logger logger = LoggerFactory.getLogger(ExpenseController.class);</span>
+
+    private final ExpenseService expenseService;
+
+<span class="fc" id="L22">    public ExpenseController(ExpenseService expenseService) {</span>
+<span class="fc" id="L23">        this.expenseService = expenseService;</span>
+<span class="fc" id="L24">    }</span>
+
+    public void getPendingExpenses(Context ctx) {
+<span class="fc" id="L27">        Integer managerId = ctx.attribute(&quot;userId&quot;);</span>
+
+<span class="fc" id="L29">        logger.info(&quot;Pending expenses requested by managerId={}&quot;, managerId);</span>
+
+<span class="fc" id="L31">        List&lt;Expense&gt; pendingExpenses = expenseService.getPendingExpenses();</span>
+
+<span class="fc" id="L33">        logger.info(&quot;Pending expenses returned: managerId={}, count={}&quot;,</span>
+                managerId,
+<span class="fc" id="L35">                pendingExpenses.size());</span>
+
+<span class="fc" id="L37">        ctx.status(HttpStatus.OK).json(pendingExpenses);</span>
+<span class="fc" id="L38">    }</span>
+
+    public void reviewExpense(Context ctx) {
+        int expenseId;
+<span class="nc" id="L42">        String expenseIdPathParam = ctx.pathParam(&quot;id&quot;);</span>
+
+        try {
+<span class="nc" id="L45">            expenseId = Integer.parseInt(expenseIdPathParam);</span>
+<span class="nc" id="L46">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L47">            logger.warn(&quot;Review expense failed: invalid expense id pathParam={}&quot;, expenseIdPathParam);</span>
+
+<span class="nc" id="L49">            ctx.status(HttpStatus.BAD_REQUEST)</span>
+<span class="nc" id="L50">                    .json(new ErrorResponse(&quot;Invalid expense id.&quot;));</span>
+<span class="nc" id="L51">            return;</span>
+<span class="nc" id="L52">        }</span>
+
+<span class="nc" id="L54">        ApprovalRequest approvalRequest = ctx.bodyAsClass(ApprovalRequest.class);</span>
+
+<span class="nc" id="L56">        Integer reviewerId = ctx.attribute(&quot;userId&quot;);</span>
+
+<span class="nc" id="L58">        logger.info(&quot;Expense review requested: expenseId={}, reviewerId={}, status={}&quot;,</span>
+<span class="nc" id="L59">                expenseId,</span>
+                reviewerId,
+<span class="nc" id="L61">                approvalRequest.getStatus());</span>
+
+<span class="nc" id="L63">        boolean reviewed = expenseService.reviewExpense(expenseId, reviewerId, approvalRequest);</span>
+
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (!reviewed) {</span>
+<span class="nc" id="L66">            logger.warn(&quot;Expense review failed: expenseId={}, reviewerId={}, status={}&quot;,</span>
+<span class="nc" id="L67">                    expenseId,</span>
+                    reviewerId,
+<span class="nc" id="L69">                    approvalRequest.getStatus());</span>
+
+<span class="nc" id="L71">            ctx.status(HttpStatus.BAD_REQUEST)</span>
+<span class="nc" id="L72">                    .json(new ErrorResponse(&quot;Unable to review expense&quot;));</span>
+
+<span class="nc" id="L74">            return;</span>
+        }
+
+<span class="nc" id="L77">        logger.info(&quot;Expense reviewed successfully: expenseId={}, reviewerId={}, status={}&quot;,</span>
+<span class="nc" id="L78">                expenseId,</span>
+                reviewerId,
+<span class="nc" id="L80">                approvalRequest.getStatus());</span>
+
+<span class="nc" id="L82">        ctx.status(HttpStatus.OK)</span>
+<span class="nc" id="L83">                .json(Map.of(&quot;message&quot;, &quot;Expense reviewed successfully&quot;));</span>
+<span class="nc" id="L84">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

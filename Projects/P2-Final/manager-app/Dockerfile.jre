@@ -1,0 +1,29 @@
+# Fallback runtime: a stock Alpine JRE instead of the jlink-trimmed one in
+# ./Dockerfile. Roughly 30MB larger, but it ships the full 50-module JRE, so a
+# dependency that reaches for a module via reflection cannot break it.
+#
+# Switch to this if a new dependency fails at runtime with NoClassDefFoundError
+# under the jlink image and adding the module to --add-modules isn't obvious:
+#   docker build -f manager-app/Dockerfile.jre -t manager-api .
+
+# Build
+FROM maven:3.9-eclipse-temurin-17 AS build
+
+WORKDIR /build
+
+COPY manager-app/pom.xml .
+RUN mvn -B dependency:go-offline
+
+COPY manager-app/src ./src
+RUN mvn -B clean package -DskipTests
+
+# Run
+FROM eclipse-temurin:17-jre-alpine
+
+WORKDIR /app
+
+COPY --from=build /build/target/manager-app-1.0-SNAPSHOT.jar app.jar
+
+EXPOSE 7001
+
+CMD ["java", "-jar", "app.jar"]

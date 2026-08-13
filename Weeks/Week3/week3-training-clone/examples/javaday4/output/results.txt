@@ -1,0 +1,3 @@
+PASS LoginTest
+PASS SearchTest
+FAIL CheckoutTest

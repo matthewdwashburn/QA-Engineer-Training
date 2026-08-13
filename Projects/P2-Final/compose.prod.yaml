@@ -1,0 +1,100 @@
+# Deployed to the host on its own -- no build contexts, since there is no source
+# tree there. Every image is pulled by immutable tag.
+#   docker compose --env-file .env -f compose.yaml pull
+#   docker compose --env-file .env -f compose.yaml up -d --wait
+
+name: expense-manager
+
+services:
+  postgres:
+    # Pinned to 17: the 18 images moved PGDATA, which would silently orphan an
+    # existing volume on upgrade.
+    #
+    # POSTGRES_PASSWORD is read only when initdb creates the data directory, so
+    # it is fixed at the first deploy. Changing the Jenkins credential afterwards
+    # does not re-key the database -- it just makes every service fail to
+    # authenticate until the postgres-data volume is destroyed and reseeded.
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-expense_manager}
+      POSTGRES_USER: ${POSTGRES_USER:-expense}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    # Deliberately unpublished: only the two APIs on the compose network reach it.
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-expense} -d ${POSTGRES_DB:-expense_manager}"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+
+  db-init:
+    image: ${REGISTRY}/expense-db-init:${IMAGE_TAG}
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-expense}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}@postgres:5432/${POSTGRES_DB:-expense_manager}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # One-shot: it drops and rebuilds every table, so never on a normal `up`.
+    profiles: ["init"]
+
+  employee-api:
+    image: ${REGISTRY}/expense-employee-api:${IMAGE_TAG}
+    environment:
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in .env}
+      JWT_EXPIRATION_HOURS: ${JWT_EXPIRATION_HOURS:-8}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-expense}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}@postgres:5432/${POSTGRES_DB:-expense_manager}
+      CORS_ORIGINS: http://${PUBLIC_HOST}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+
+  manager-api:
+    image: ${REGISTRY}/expense-manager-api:${IMAGE_TAG}
+    environment:
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in .env}
+      JWT_EXPIRATION_HOURS: ${JWT_EXPIRATION_HOURS:-8}
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-expense_manager}
+      DB_USER: ${POSTGRES_USER:-expense}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
+      CORS_ORIGINS: http://${PUBLIC_HOST}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:7001/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 15s
+
+  frontend:
+    image: ${REGISTRY}/expense-frontend:${IMAGE_TAG}
+    # The only published port: both APIs are reached through its reverse proxy.
+    ports:
+      - "80:80"
+    depends_on:
+      employee-api:
+        condition: service_healthy
+      manager-api:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+
+volumes:
+  postgres-data:

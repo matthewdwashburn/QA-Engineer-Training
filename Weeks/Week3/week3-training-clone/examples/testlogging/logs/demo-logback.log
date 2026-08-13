@@ -1,0 +1,3 @@
+2026-06-18 15:34:05,139 INFO  com.revature.DemoLogBackSetup - info: demo main started
+2026-06-18 15:34:05,143 WARN  com.revature.DemoLogBackSetup - warn: example warning
+2026-06-18 15:34:05,143 ERROR com.revature.DemoLogBackSetup - error: example error without exception

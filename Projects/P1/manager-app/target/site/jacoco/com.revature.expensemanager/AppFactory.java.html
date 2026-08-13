@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AppFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">manager-app</a> &gt; <a href="index.source.html" class="el_package">com.revature.expensemanager</a> &gt; <span class="el_source">AppFactory.java</span></div><h1>AppFactory.java</h1><pre class="source lang-java linenums">package com.revature.expensemanager;
+
+import com.revature.expensemanager.config.AppConfig;
+import com.revature.expensemanager.controller.AuthController;
+import com.revature.expensemanager.controller.ExpenseController;
+import com.revature.expensemanager.controller.ReportController;
+import com.revature.expensemanager.dao.ApprovalDAO;
+import com.revature.expensemanager.dao.ExpenseDAO;
+import com.revature.expensemanager.dao.JdbcApprovalDAO;
+import com.revature.expensemanager.dao.JdbcExpenseDAO;
+import com.revature.expensemanager.dao.JdbcReportDAO;
+import com.revature.expensemanager.dao.JdbcUserDAO;
+import com.revature.expensemanager.dao.ReportDAO;
+import com.revature.expensemanager.dao.UserDAO;
+import com.revature.expensemanager.dto.ErrorResponse;
+import com.revature.expensemanager.middleware.AuthMiddleware;
+import com.revature.expensemanager.service.AuthService;
+import com.revature.expensemanager.service.ExpenseService;
+import com.revature.expensemanager.service.JwtService;
+import com.revature.expensemanager.service.ReportExportService;
+import com.revature.expensemanager.service.ReportService;
+
+import io.javalin.Javalin;
+import io.javalin.http.HttpStatus;
+
+/**
+ * Builds the fully-wired Javalin application without starting it.
+ *
+ * &lt;p&gt;Production code calls {@link #build()} and then {@code .start(port)}.
+ * Integration tests call {@link #build()} and start it on port {@code 0}
+ * (a random free port) so REST Assured can drive real HTTP requests without
+ * colliding with a running instance.
+ */
+public final class AppFactory {
+
+    private AppFactory() {
+    }
+
+    /**
+     * Constructs the dependency graph and wires all routes.
+     *
+     * @return an unstarted {@link Javalin} instance; the caller is responsible
+     *         for calling {@code start(...)} and {@code stop()}.
+     */
+    public static Javalin build() {
+<span class="fc" id="L46">        AppConfig appConfig = new AppConfig();</span>
+
+<span class="fc" id="L48">        UserDAO userDAO = new JdbcUserDAO();</span>
+<span class="fc" id="L49">        ExpenseDAO expenseDAO = new JdbcExpenseDAO();</span>
+<span class="fc" id="L50">        ApprovalDAO approvalDAO = new JdbcApprovalDAO();</span>
+<span class="fc" id="L51">        ReportDAO reportDAO = new JdbcReportDAO();</span>
+
+<span class="fc" id="L53">        AuthService authService = new AuthService(userDAO);</span>
+<span class="fc" id="L54">        ExpenseService expenseService = new ExpenseService(expenseDAO, approvalDAO);</span>
+<span class="fc" id="L55">        ReportService reportService = new ReportService(reportDAO, userDAO);</span>
+<span class="fc" id="L56">        ReportExportService reportExportService = new ReportExportService();</span>
+<span class="fc" id="L57">        JwtService jwtService = new JwtService(appConfig.getJwtSecret(), appConfig.getJwtExpirationHours());</span>
+
+<span class="fc" id="L59">        AuthMiddleware authMiddleware = new AuthMiddleware(jwtService);</span>
+
+<span class="fc" id="L61">        AuthController authController = new AuthController(authService, jwtService);</span>
+<span class="fc" id="L62">        ExpenseController expenseController = new ExpenseController(expenseService);</span>
+<span class="fc" id="L63">        ReportController reportController = new ReportController(reportService, reportExportService);</span>
+
+<span class="fc" id="L65">        return Javalin.create(config -&gt; {</span>
+            // Allow the Vite dev server to call this API from a different origin.
+            // Both host spellings are listed because the browser treats
+            // localhost and 127.0.0.1 as separate origins.
+<span class="fc" id="L69">            config.bundledPlugins.enableCors(cors -&gt; cors.addRule(rule -&gt; {</span>
+<span class="fc" id="L70">                rule.allowHost(&quot;http://localhost:5173&quot;, &quot;http://127.0.0.1:5173&quot;);</span>
+<span class="fc" id="L71">                rule.allowCredentials = true;</span>
+<span class="fc" id="L72">            }));</span>
+
+<span class="fc" id="L74">            config.routes.post(&quot;/login&quot;, authController::login);</span>
+
+<span class="fc" id="L76">            config.routes.before(&quot;/employees&quot;, authMiddleware::requireManager);</span>
+<span class="fc" id="L77">            config.routes.before(&quot;/expenses/*&quot;, authMiddleware::requireManager);</span>
+<span class="fc" id="L78">            config.routes.before(&quot;/reports/*&quot;, authMiddleware::requireManager);</span>
+<span class="fc" id="L79">            config.routes.before(&quot;/me&quot;, authMiddleware::requireManager);</span>
+
+<span class="fc" id="L81">            config.routes.get(&quot;/expenses/pending&quot;, expenseController::getPendingExpenses);</span>
+<span class="fc" id="L82">            config.routes.put(&quot;/expenses/{id}/review&quot;, expenseController::reviewExpense);</span>
+
+<span class="fc" id="L84">            config.routes.get(&quot;/reports/employee&quot;, reportController::getExpensesByEmployee);</span>
+<span class="fc" id="L85">            config.routes.get(&quot;/reports/category&quot;, reportController::getExpensesByCategory);</span>
+<span class="fc" id="L86">            config.routes.get(&quot;/reports/date&quot;, reportController::getExpensesByDateRange);</span>
+<span class="fc" id="L87">            config.routes.get(&quot;/employees&quot;, reportController::getEmployees);</span>
+<span class="fc" id="L88">            config.routes.get(&quot;/me&quot;, authController::me);</span>
+
+<span class="fc" id="L90">            config.routes.exception(RuntimeException.class, (e, ctx) -&gt; {</span>
+<span class="nc" id="L91">                e.printStackTrace();</span>
+<span class="nc" id="L92">                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR)</span>
+<span class="nc" id="L93">                        .json(new ErrorResponse(&quot;Internal server error.&quot;));</span>
+<span class="nc" id="L94">            });</span>
+<span class="fc" id="L95">        });</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

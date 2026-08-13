@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AppConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">manager-app</a> &gt; <a href="index.source.html" class="el_package">com.revature.expensemanager.config</a> &gt; <span class="el_source">AppConfig.java</span></div><h1>AppConfig.java</h1><pre class="source lang-java linenums">package com.revature.expensemanager.config;
+
+import io.github.cdimascio.dotenv.Dotenv;
+
+public class AppConfig {
+    private final String jwtSecret;
+    private final int jwtExpirationHours;
+
+<span class="fc" id="L9">    public AppConfig() {</span>
+<span class="fc" id="L10">        Dotenv dotenv = Dotenv.load();</span>
+
+<span class="fc" id="L12">        this.jwtSecret = getRequired(dotenv, &quot;JWT_SECRET&quot;);</span>
+<span class="fc" id="L13">        this.jwtExpirationHours = getRequiredInt(dotenv, &quot;JWT_EXPIRATION_HOURS&quot;);</span>
+<span class="fc" id="L14">    }</span>
+
+    public String getJwtSecret() {
+<span class="fc" id="L17">        return jwtSecret;</span>
+    }
+
+    public int getJwtExpirationHours() {
+<span class="fc" id="L21">        return jwtExpirationHours;</span>
+    }
+
+    private String getRequired(Dotenv dotenv, String key) {
+<span class="fc" id="L25">        String value = dotenv.get(key);</span>
+
+<span class="pc bpc" id="L27" title="2 of 4 branches missed.">        if (value == null || value.isBlank()) {</span>
+<span class="nc" id="L28">            throw new IllegalStateException(key + &quot; is required.&quot;);</span>
+        }
+
+<span class="fc" id="L31">        return value;</span>
+    }
+
+    private int getRequiredInt(Dotenv dotenv, String key) {
+<span class="fc" id="L35">        String value = getRequired(dotenv, key);</span>
+
+        try {
+<span class="fc" id="L38">            return Integer.parseInt(value);</span>
+<span class="nc" id="L39">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L40">            throw new IllegalStateException(key + &quot; must be an integer.&quot;, e);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

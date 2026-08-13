@@ -1,0 +1,22 @@
+services:
+  jenkins:
+    build: ./jenkins
+    container_name: jenkins-p1
+    user: root
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Same path inside and out, so bind mounts in docker-compose.yml resolve
+      # for the host daemon as well as for us.
+      - /opt/ci-workspace:/opt/ci-workspace
+    networks:
+      - jenkins-net
+
+volumes:
+  jenkins_home:
+
+networks:
+  jenkins-net:

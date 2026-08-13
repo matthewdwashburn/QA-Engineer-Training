@@ -1,0 +1,6 @@
+[PASS] LoginTest - 120ms
+[FAIL] CheckoutTest - 340ms | Reason: NullPointerException on line 87
+[PASS] SearchTest - 95ms
+[SKIP] PaymentTest - 0ms | Reason: dependency not available
+[FAIL] ProfileUpdateTest - 210ms | Reason: AssertionError: expected 200 but was 404
+[PASS] LogoutTest - 88ms

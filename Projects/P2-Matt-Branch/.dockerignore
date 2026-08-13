@@ -1,0 +1,11 @@
+.git/
+.venv/
+venv/
+__pycache__/
+frontend/node_modules/
+**/target/
+*.db
+**/.env
+allure-results/
+allure-report/
+htmlcov/

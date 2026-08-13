@@ -1,0 +1,3 @@
+cart_subtotal,coupon_code,expected_success,expected_error_code,notes
+49.99,SAVE10,0,COUP_MIN,example row — replace with your suite
+100.00,SAVE10,1,,freeform notes column optional

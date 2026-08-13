@@ -1,0 +1,28 @@
+# Jenkins controller. Deliberately a separate compose project from the
+# application stack (name: expense-manager), so `docker compose down -v` in the
+# repo root can never take CI down with it.
+#
+# Note what is NOT here: the Docker socket is not mounted. The controller never
+# builds an image or runs a container -- that is the agent's job. Mounting the
+# socket here would hand any pipeline root on the host and undo the whole point
+# of splitting controller from agent.
+
+name: jenkins-ci
+
+services:
+  controller:
+    image: jenkins/jenkins:lts-jdk21
+    ports:
+      # 8081, not 8080: the frontend service already publishes 8080.
+      - "8081:8080"
+      # Inbound (JNLP) agent port. The Windows agent dials in on this.
+      - "50000:50000"
+    volumes:
+      # Named volume, not a bind mount: JENKINS_HOME holds the credential store
+      # and master key, and bind-mounting it onto the Windows filesystem loses
+      # the POSIX permissions Jenkins expects on secrets/.
+      - jenkins-home:/var/jenkins_home
+    restart: unless-stopped
+
+volumes:
+  jenkins-home:

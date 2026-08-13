@@ -1,0 +1,46 @@
+# Version Control
+.git
+.gitignore
+.gitattributes
+
+# IDE and editors 
+.idea
+.vscode
+
+# DB
+database/*.db
+
+# Environment and secrets
+**/.env
+
+# Python
+venv
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+.coverage
+htmlcov
+
+# Java
+**/target
+
+# Maven
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+
+# Node
+node_modules
+
+# Docker files
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Documents
+README.md
+*.md
+allure-report
+allure-results

@@ -1,0 +1,6 @@
+INFO     werkzeug:_internal.py:97 127.0.0.1 - - [27/Jul/2026 16:06:14] "POST /auth/login HTTP/1.1" 200 -
+INFO     werkzeug:_internal.py:97 127.0.0.1 - - [27/Jul/2026 16:06:14] "[35m[1mPOST /expenses/submit HTTP/1.1[0m" 201 -
+INFO     werkzeug:_internal.py:97 127.0.0.1 - - [27/Jul/2026 16:06:14] "PUT /expenses/4 HTTP/1.1" 200 -
+INFO     werkzeug:_internal.py:97 127.0.0.1 - - [27/Jul/2026 16:06:14] "GET /expenses/pending HTTP/1.1" 200 -
+INFO     werkzeug:_internal.py:97 127.0.0.1 - - [27/Jul/2026 16:06:14] "DELETE /expenses/4 HTTP/1.1" 200 -
+INFO     werkzeug:_internal.py:97 127.0.0.1 - - [27/Jul/2026 16:06:14] "GET /expenses/pending HTTP/1.1" 200 -

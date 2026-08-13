@@ -1,0 +1,6 @@
+cuc/steps/CrossRoleLifecycle.class
+cuc/steps/ManagerReviewLifecycle.class
+cuc/steps/BasicTestsRunnerTest.class
+cuc/steps/EmployeeExpenseLifecycle.class
+cuc/steps/TestContext.class
+cuc/steps/Hooks.class

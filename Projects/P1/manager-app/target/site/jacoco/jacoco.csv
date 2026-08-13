@@ -1,0 +1,14 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+manager-app,com.revature.expensemanager.config,DatabaseConfig,22,17,6,2,7,6,5,2,1,2
+manager-app,com.revature.expensemanager.config,AppConfig,14,42,2,2,3,12,2,5,0,5
+manager-app,com.revature.expensemanager.middleware,AuthMiddleware,1,181,1,19,1,47,1,12,0,3
+manager-app,com.revature.expensemanager,AppFactory,12,228,0,0,4,33,1,4,1,4
+manager-app,com.revature.expensemanager,Main,8,0,0,0,3,0,2,0,2,0
+manager-app,com.revature.expensemanager.service,ExpenseService,0,122,0,18,0,28,0,13,0,4
+manager-app,com.revature.expensemanager.service,AuthService,5,86,1,11,2,24,1,11,0,6
+manager-app,com.revature.expensemanager.service,ReportService,0,42,0,0,0,11,0,7,0,7
+manager-app,com.revature.expensemanager.service,ReportExportService,0,86,0,0,0,18,0,3,0,3
+manager-app,com.revature.expensemanager.service,JwtService,0,85,0,6,0,23,0,9,0,6
+manager-app,com.revature.expensemanager.controller,ExpenseController,119,37,2,0,27,11,2,3,1,3
+manager-app,com.revature.expensemanager.controller,ReportController,120,294,4,16,22,72,3,14,0,7
+manager-app,com.revature.expensemanager.controller,AuthController,28,83,0,4,5,25,1,5,1,3

@@ -1,0 +1,7 @@
+﻿Requirement ID,Requirement,Test Case(s),Test Type,Build,Result,Notes
+Auth-77-AC-1,Reset email sent within 2 min.,"TC-AUTH-001, TC-AUTH-002","Positive, Boundary",v 1.0.0,Pass,Good coverage
+Auth-77-AC-2,Generic Message for invalid email,TC-AUTH-003,Negative,v 1.0.1,Pass,Preventss account enumeration
+Auth-77-AC-3,Used reset link rejected,"TC-AUTH-004, TC-AUTH-007","Negative, Positive",v 1.0.0,Pass,Security
+Auth-77-AC-4,Password under 12 chars. Rejected,"TC-AUTH-005, TC-AUTH-006","Boundary, Positive",v 1.0.0,Pass,Missing a positive test
+Auth-77-NFR-1,API under 500 ms,PERF-AUTH-001,Performance,v 1.0.0,Pass,p95 measured
+Auth-77-NFR-2,500 concurrent requests,PERF-AUTH-002,Performance,v 1.0.0,Fail,Performance Defect

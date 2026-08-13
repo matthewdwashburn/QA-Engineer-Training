@@ -1,0 +1,28 @@
+%% Trainee template — replace placeholders and extend with your tables/relationships.
+%% Tip: erDiagram syntax: ENTITY ||--o{ OTHER : relationship_label
+
+erDiagram
+    CUSTOMER {
+        %% primary_key id
+        %% string email UK
+    }
+
+    PRODUCT {
+        %% primary_key id
+        %% string sku UK
+    }
+
+    ORDER_HEADER {
+        %% primary_key id
+        %% fk customer_id
+    }
+
+    ORDER_LINE {
+        %% composite PK or surrogate — your choice
+    }
+
+    %% Add ADDRESS (or customer_address) and any junction tables you need.
+
+    %% CUSTOMER ||--o{ ORDER_HEADER : places
+    %% ORDER_HEADER ||--|{ ORDER_LINE : contains
+    %% PRODUCT ||--o{ ORDER_LINE : referenced_by

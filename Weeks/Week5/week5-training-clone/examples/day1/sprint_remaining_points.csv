@@ -1,0 +1,7 @@
+day_label,ideal_remaining,actual_remaining,note
+Day 0,40,40,Sprint start; 40 pts in Sprint Backlog
+Day 1,32,38,Slower start; onboarding interrupt
+Day 2,24,30,US-104 harder than expected
+Day 3,16,22,Tester blocked env; fixed midday
+Day 4,8,14,Scope stable
+Day 5,0,6,Carryover discussion; 6 pts remain

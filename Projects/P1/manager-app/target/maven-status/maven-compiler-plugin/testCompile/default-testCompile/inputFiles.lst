@@ -1,0 +1,10 @@
+/Users/matt/Documents/GitHub/Revature/P1-Group6/manager-app/src/test/java/com/revature/expensemanager/controller/AuthControllerTest.java
+/Users/matt/Documents/GitHub/Revature/P1-Group6/manager-app/src/test/java/com/revature/expensemanager/integration/AbstractApiIT.java
+/Users/matt/Documents/GitHub/Revature/P1-Group6/manager-app/src/test/java/com/revature/expensemanager/integration/EmployeesIntegrationTest.java
+/Users/matt/Documents/GitHub/Revature/P1-Group6/manager-app/src/test/java/com/revature/expensemanager/integration/PendingExpensesIntegrationTest.java
+/Users/matt/Documents/GitHub/Revature/P1-Group6/manager-app/src/test/java/com/revature/expensemanager/middleware/AuthMiddlewareTest.java
+/Users/matt/Documents/GitHub/Revature/P1-Group6/manager-app/src/test/java/com/revature/expensemanager/service/AuthServiceTest.java
+/Users/matt/Documents/GitHub/Revature/P1-Group6/manager-app/src/test/java/com/revature/expensemanager/service/ExpenseServiceTest.java
+/Users/matt/Documents/GitHub/Revature/P1-Group6/manager-app/src/test/java/com/revature/expensemanager/service/JwtServiceTest.java
+/Users/matt/Documents/GitHub/Revature/P1-Group6/manager-app/src/test/java/com/revature/expensemanager/service/ReportExportServiceTest.java
+/Users/matt/Documents/GitHub/Revature/P1-Group6/manager-app/src/test/java/com/revature/expensemanager/service/ReportServiceTest.java

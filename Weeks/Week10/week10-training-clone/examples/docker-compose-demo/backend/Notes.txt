@@ -1,0 +1,5 @@
+#for just backend
+docker build -t myapp:v1 . --network=host
+docker run -d -p 8080:8080 myapp:v1
+
+#need last part if not using docker desktop or download to work

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">manager-app</a> &gt; <a href="index.source.html" class="el_package">com.revature.expensemanager.service</a> &gt; <span class="el_source">AuthService.java</span></div><h1>AuthService.java</h1><pre class="source lang-java linenums">package com.revature.expensemanager.service;
+
+import java.util.Optional;
+
+import at.favre.lib.crypto.bcrypt.BCrypt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.revature.expensemanager.dao.UserDAO;
+import com.revature.expensemanager.dto.LoginRequest;
+import com.revature.expensemanager.dto.LoginResponse;
+
+public class AuthService {
+<span class="fc" id="L14">    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);</span>
+
+    private final UserDAO userDAO;
+
+<span class="fc" id="L18">    public AuthService(UserDAO userDAO) {</span>
+<span class="fc" id="L19">        this.userDAO = userDAO;</span>
+<span class="fc" id="L20">    }</span>
+
+    public Optional&lt;LoginResponse&gt; login(LoginRequest loginRequest) {
+<span class="pc bpc" id="L23" title="1 of 2 branches missed.">        if (loginRequest == null) {</span>
+<span class="nc" id="L24">            logger.warn(&quot;Login failed: request body was null.&quot;);</span>
+<span class="nc" id="L25">            return Optional.empty();</span>
+        }
+
+<span class="fc" id="L28">        String username = loginRequest.getUsername();</span>
+<span class="fc" id="L29">        String password = loginRequest.getPassword();</span>
+
+<span class="fc bfc" id="L31" title="All 6 branches covered.">        if (username == null || username.isBlank()</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">                || password == null || password.isBlank()) {</span>
+<span class="fc" id="L33">            logger.warn(&quot;Login failed: username or password was blank.&quot;);</span>
+<span class="fc" id="L34">            return Optional.empty();</span>
+        }
+
+<span class="fc" id="L37">        logger.info(&quot;Authenticating manager login for username={}&quot;, username);</span>
+
+<span class="fc" id="L39">        Optional&lt;LoginResponse&gt; response = userDAO.findByUsername(username)</span>
+<span class="fc" id="L40">                .filter(user -&gt; BCrypt.verifyer()</span>
+<span class="fc" id="L41">                        .verify(password.toCharArray(), user.getPassword()).verified)</span>
+<span class="fc" id="L42">                .filter(user -&gt; user.getRole().equalsIgnoreCase(&quot;manager&quot;))</span>
+<span class="fc" id="L43">                .map(user -&gt; new LoginResponse(</span>
+<span class="fc" id="L44">                        user.getId(),</span>
+<span class="fc" id="L45">                        user.getUsername(),</span>
+<span class="fc" id="L46">                        user.getRole()));</span>
+
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        if (response.isPresent()) {</span>
+<span class="fc" id="L49">            logger.info(&quot;Manager authenticated successfully: username={}&quot;, username);</span>
+        } else {
+<span class="fc" id="L51">            logger.warn(&quot;Manager authentication failed for username={}&quot;, username);</span>
+        }
+
+<span class="fc" id="L54">        return response;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

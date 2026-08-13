@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReportController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">manager-app</a> &gt; <a href="index.source.html" class="el_package">com.revature.expensemanager.controller</a> &gt; <span class="el_source">ReportController.java</span></div><h1>ReportController.java</h1><pre class="source lang-java linenums">package com.revature.expensemanager.controller;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+
+import com.revature.expensemanager.dto.EmployeeSummary;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.revature.expensemanager.dto.ErrorResponse;
+import com.revature.expensemanager.model.Expense;
+import com.revature.expensemanager.model.ExpenseCategory;
+import com.revature.expensemanager.service.ReportExportService;
+import com.revature.expensemanager.service.ReportService;
+
+import io.javalin.http.Context;
+import io.javalin.http.HttpStatus;
+
+public class ReportController {
+<span class="fc" id="L21">    private static final Logger logger = LoggerFactory.getLogger(ReportController.class);</span>
+
+    private final ReportService reportService;
+    private final ReportExportService reportExportService;
+
+<span class="fc" id="L26">    public ReportController(ReportService reportService, ReportExportService reportExportService) {</span>
+<span class="fc" id="L27">        this.reportService = reportService;</span>
+<span class="fc" id="L28">        this.reportExportService = reportExportService;</span>
+<span class="fc" id="L29">    }</span>
+
+    public void getExpensesByEmployee(Context ctx) {
+<span class="fc" id="L32">        Integer managerId = ctx.attribute(&quot;userId&quot;);</span>
+<span class="fc" id="L33">        String userIdParam = ctx.queryParam(&quot;userId&quot;);</span>
+
+<span class="fc" id="L35">        logger.info(&quot;Employee report requested: managerId={}, employeeIdParam={}&quot;, managerId, userIdParam);</span>
+
+<span class="fc bfc" id="L37" title="All 4 branches covered.">        if (userIdParam == null || userIdParam.isBlank()) {</span>
+<span class="fc" id="L38">            logger.warn(&quot;Employee report failed: missing userId query parameter.&quot;);</span>
+<span class="fc" id="L39">            ctx.status(HttpStatus.BAD_REQUEST)</span>
+<span class="fc" id="L40">                    .json(new ErrorResponse(&quot;userId query parameter is required.&quot;));</span>
+<span class="fc" id="L41">            return;</span>
+        }
+
+        int userId;
+
+        try {
+<span class="fc" id="L47">            userId = Integer.parseInt(userIdParam);</span>
+<span class="nc" id="L48">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L49">            logger.warn(&quot;Employee report failed: invalid userId={}&quot;, userIdParam);</span>
+<span class="nc" id="L50">            ctx.status(HttpStatus.BAD_REQUEST)</span>
+<span class="nc" id="L51">                    .json(new ErrorResponse(&quot;userId must be a valid number.&quot;));</span>
+<span class="nc" id="L52">            return;</span>
+<span class="fc" id="L53">        }</span>
+
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">        if (userId &lt;= 0) {</span>
+<span class="fc" id="L56">            logger.warn(&quot;Employee report failed: non-positive userId={}&quot;, userId);</span>
+<span class="fc" id="L57">            ctx.status(HttpStatus.BAD_REQUEST)</span>
+<span class="fc" id="L58">                    .json(new ErrorResponse(&quot;userId must be a positive number.&quot;));</span>
+<span class="fc" id="L59">            return;</span>
+        }
+
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (!reportService.employeeExists(userId)) {</span>
+<span class="nc" id="L63">            logger.warn(&quot;Employee report failed: employeeId={} not found.&quot;, userId);</span>
+<span class="nc" id="L64">            ctx.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L65">                    .json(new ErrorResponse(&quot;Employee not found.&quot;));</span>
+<span class="nc" id="L66">            return;</span>
+        }
+
+<span class="nc" id="L69">        List&lt;Expense&gt; expenses = reportService.getExpensesByEmployee(userId);</span>
+
+<span class="nc" id="L71">        logger.info(&quot;Employee report generated: managerId={}, employeeId={}, count={}&quot;,</span>
+                managerId,
+<span class="nc" id="L73">                userId,</span>
+<span class="nc" id="L74">                expenses.size());</span>
+
+<span class="nc" id="L76">        exportIfRequested(ctx, expenses, &quot;employee_report&quot;, managerId);</span>
+<span class="nc" id="L77">        ctx.status(HttpStatus.OK).json(expenses);</span>
+<span class="nc" id="L78">    }</span>
+
+    public void getExpensesByCategory(Context ctx) {
+<span class="fc" id="L81">        String categoryParam = ctx.queryParam(&quot;category&quot;);</span>
+<span class="fc" id="L82">        Integer managerId = ctx.attribute(&quot;userId&quot;);</span>
+
+<span class="fc" id="L84">        logger.info(&quot;Category report requested: managerId={}, categoryParam={}&quot;, managerId, categoryParam);</span>
+
+        ExpenseCategory category;
+
+        try {
+<span class="fc" id="L89">            category = ExpenseCategory.fromInput(categoryParam);</span>
+<span class="fc" id="L90">        } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L91">            logger.warn(&quot;Category report failed: invalid category={}&quot;, categoryParam);</span>
+<span class="fc" id="L92">            ctx.status(HttpStatus.BAD_REQUEST)</span>
+<span class="fc" id="L93">                    .json(new ErrorResponse(&quot;Invalid category. &quot; + ExpenseCategory.validCategoriesMessage()));</span>
+<span class="fc" id="L94">            return;</span>
+<span class="fc" id="L95">        }</span>
+
+<span class="fc" id="L97">        List&lt;Expense&gt; expenses = reportService.getExpensesByCategory(category.name());</span>
+
+<span class="fc" id="L99">        logger.info(&quot;Category report generated: managerId={}, category={}, count={}&quot;,</span>
+                managerId,
+<span class="fc" id="L101">                category.name(),</span>
+<span class="fc" id="L102">                expenses.size());</span>
+
+<span class="fc" id="L104">        exportIfRequested(ctx, expenses, &quot;category_report&quot;, managerId);</span>
+<span class="fc" id="L105">        ctx.status(HttpStatus.OK).json(expenses);</span>
+<span class="fc" id="L106">    }</span>
+
+    public void getExpensesByDateRange(Context ctx) {
+<span class="fc" id="L109">        String startDate = ctx.queryParam(&quot;startDate&quot;);</span>
+<span class="fc" id="L110">        String endDate = ctx.queryParam(&quot;endDate&quot;);</span>
+
+<span class="fc" id="L112">        Integer managerId = ctx.attribute(&quot;userId&quot;);</span>
+<span class="fc" id="L113">        logger.info(&quot;Date report requested: managerId={}, startDate={}, endDate={}&quot;,</span>
+                managerId,
+                startDate,
+                endDate);
+
+<span class="fc bfc" id="L118" title="All 8 branches covered.">        if (startDate == null || endDate == null || startDate.isBlank() || endDate.isBlank()) {</span>
+<span class="fc" id="L119">            logger.warn(&quot;Date report failed: missing startDate or endDate.&quot;);</span>
+<span class="fc" id="L120">            ctx.status(HttpStatus.BAD_REQUEST)</span>
+<span class="fc" id="L121">                    .json(new ErrorResponse(&quot;startDate and endDate query parameters are required.&quot;));</span>
+<span class="fc" id="L122">            return;</span>
+        }
+
+        LocalDate parsedStartDate;
+        LocalDate parsedEndDate;
+
+        try {
+<span class="fc" id="L129">            parsedStartDate = LocalDate.parse(startDate);</span>
+<span class="fc" id="L130">            parsedEndDate = LocalDate.parse(endDate);</span>
+<span class="fc" id="L131">        } catch (DateTimeParseException e) {</span>
+<span class="fc" id="L132">            logger.warn(&quot;Date report failed: invalid date format. startDate={}, endDate={}&quot;,</span>
+                    startDate,
+                    endDate);
+<span class="fc" id="L135">            ctx.status(HttpStatus.BAD_REQUEST)</span>
+<span class="fc" id="L136">                    .json(new ErrorResponse(&quot;startDate and endDate must use YYYY-MM-DD format.&quot;));</span>
+<span class="fc" id="L137">            return;</span>
+<span class="fc" id="L138">        }</span>
+
+<span class="fc bfc" id="L140" title="All 2 branches covered.">        if (parsedStartDate.isAfter(parsedEndDate)) {</span>
+<span class="fc" id="L141">            logger.warn(&quot;Date report failed: startDate={} was after endDate={}&quot;,</span>
+                    startDate,
+                    endDate);
+<span class="fc" id="L144">            ctx.status(HttpStatus.BAD_REQUEST)</span>
+<span class="fc" id="L145">                    .json(new ErrorResponse(&quot;startDate must be on or before endDate.&quot;));</span>
+<span class="fc" id="L146">            return;</span>
+        }
+
+<span class="fc" id="L149">        List&lt;Expense&gt; expenses = reportService.getExpensesByDateRange(startDate, endDate);</span>
+
+<span class="fc" id="L151">        logger.info(&quot;Date report generated: managerId={}, startDate={}, endDate={}, count={}&quot;,</span>
+                managerId,
+                startDate,
+                endDate,
+<span class="fc" id="L155">                expenses.size());</span>
+
+<span class="fc" id="L157">        exportIfRequested(ctx, expenses, &quot;date_report&quot;, managerId);</span>
+<span class="fc" id="L158">        ctx.status(HttpStatus.OK).json(expenses);</span>
+<span class="fc" id="L159">    }</span>
+
+    public void getEmployees(Context ctx) {
+
+<span class="fc" id="L163">    List&lt;EmployeeSummary&gt; employees =</span>
+<span class="fc" id="L164">            reportService.getEmployees();</span>
+
+<span class="fc" id="L166">    ctx.json(employees);</span>
+<span class="fc" id="L167">}</span>
+
+    private void exportIfRequested(Context ctx, List&lt;Expense&gt; expenses, String reportName, Integer managerId) {
+<span class="fc" id="L170">        String exportParam = ctx.queryParam(&quot;export&quot;);</span>
+
+<span class="pc bpc" id="L172" title="1 of 2 branches missed.">        if (&quot;true&quot;.equalsIgnoreCase(exportParam)) {</span>
+<span class="nc" id="L173">            logger.info(&quot;CSV export requested: managerId={}, reportName={}, count={}&quot;,</span>
+                    managerId,
+                    reportName,
+<span class="nc" id="L176">                    expenses.size());</span>
+
+<span class="nc" id="L178">            String filePath = reportExportService.exportExpensesToCsv(expenses, reportName);</span>
+
+<span class="nc" id="L180">            logger.info(&quot;CSV export completed: managerId={}, reportName={}, filePath={}&quot;,</span>
+                    managerId,
+                    reportName,
+                    filePath);
+
+<span class="nc" id="L185">            ctx.header(&quot;Report-File&quot;, filePath);</span>
+        }
+<span class="fc" id="L187">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

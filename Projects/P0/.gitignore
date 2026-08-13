@@ -1,0 +1,19 @@
+# IntelliJ
+.idea/
+*.iml
+
+# Java / Maven
+target/
+*.class
+
+# Python
+venv
+__pycache__/
+*.pyc
+
+# Editors
+.vscode
+
+# Local database (not shared)
+p0.db
+*.db

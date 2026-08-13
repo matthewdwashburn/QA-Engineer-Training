@@ -1,0 +1,23 @@
+[run]
+# Enable branch coverage to expose untested logical paths (if/else/loops)
+branch = True
+
+# Target specific backend source packages
+source = 
+    employee_app/api
+    employee_app/config
+    employee_app/repository
+    employee_app/service
+
+# Omit non-backend logic and test files
+omit =
+    employee_app/main.py
+    */__init__.py
+    employee_app/tests/*
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise NotImplementedError
+    if __name__ == .__main__.:

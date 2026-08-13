@@ -1,0 +1,36 @@
+#for just backend
+docker build -t myapp:v1 . 
+docker run -d -p 8080:8080 myapp:v1
+
+
+
+
+#for just front end
+docker build -t reactapp:v1 . 
+
+#for both with docker compose in directory with docker-compose.yml
+docker compose up -d --build
+
+
+---------------------------------------------------
+#for ec2
+
+ssh -i ~/.ssh/willaug3.pem ec2-user@ec2-13-221-23-118.compute-1.amazonaws.com
+
+sudo yum update -y
+sudo yum install docker -y
+sudo service docker start
+sudo usermod -aG docker ec2-user
+
+#in a separate, local terminal upload files below
+scp -r -i ~/.ssh/willaug3.pem /mnt/c/Users/WilliamTerry/Desktop/JenkinsTest ec2-user@ec2-13-221-23-118.compute-1.amazonaws.com:/home/ec2-user/
+
+
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+docker compose version
+
+export DOCKER_BUILDKIT=0 (for older version of docker-compose)
+docker-compose up -d --build
+
+docker ps

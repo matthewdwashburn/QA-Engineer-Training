@@ -1,0 +1,48 @@
+# SQLite database
+*.db
+database/expense_manager.db
+
+# Maven build output
+target/
+**/target/
+
+# Java class files
+*.class
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Environment files
+.env
+**/.env
+
+# Python cache
+__pycache__/
+
+# Generated package archives
+*.jar
+*.war
+*.ear
+
+# Python venv
+.venv/
+venv/
+
+# Test Reporting
+.coverage
+htmlcov/
+.pytest_cache/
+allure-results/
+allure-report/

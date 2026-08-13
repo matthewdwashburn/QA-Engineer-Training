@@ -1,0 +1,315 @@
+pipeline {
+
+    agent { label 'windows' }
+
+
+    tools {
+        jdk 'temurin-17'
+    }
+
+    environment {
+        JWT_SECRET           = credentials('jwt-secret')
+        JWT_EXPIRATION_HOURS = '8'
+
+        // Offset from 5000/7001/8080 so CI does not fight the developer stack.
+        EMPLOYEE_PORT = '15000'
+        MANAGER_PORT  = '17001'
+        FRONTEND_PORT = '18080'
+
+        // CI-only project name, so `down -v` cannot touch the developer's stack.
+        COMPOSE_PROJECT_NAME = 'em-ci'
+
+        // Throwaway Postgres for the unit/DAO/integration suites, which run
+        // before the stack is up and must not share its data.
+        //
+        // A container this stage starts by hand, rather than Testcontainers:
+        // Testcontainers' Java client cannot reach Docker Desktop 29 over a
+        // Windows named pipe (every strategy returns an empty HTTP 400), and
+        // this agent is Windows. TestPostgres falls back to Testcontainers on
+        // its own wherever TEST_POSTGRES_URL is unset, so nothing here is
+        // load-bearing for developers on Linux or macOS.
+        TEST_DB_NAME     = 'em-ci-test-db'
+        // 5434: clear of the native 5432 and the developer stack's 5433.
+        TEST_DB_PORT     = '5434'
+        TEST_POSTGRES_URL      = 'jdbc:postgresql://localhost:5434/expense_manager'
+        TEST_POSTGRES_USER     = 'expense'
+        TEST_POSTGRES_PASSWORD = 'expense'
+
+        REGISTRY = 'ghcr.io/qea2026'
+        // Immutable per-commit tag; never `latest`, so a box's version is knowable.
+        IMAGE_TAG = "${env.GIT_COMMIT ? env.GIT_COMMIT.take(7) : 'dev'}"
+
+        // ec2-user on Amazon Linux; ubuntu on Ubuntu AMIs.
+        DEPLOY_USER = "${params.DEPLOY_USER}"
+        DEPLOY_HOST = "${params.DEPLOY_HOST}"
+    }
+
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '20'))
+    }
+
+    parameters {
+        // Off by default: the suite adds ~4 min and reseeds the database.
+        booleanParam(name: 'RUN_LOAD_TESTS', defaultValue: false,
+                     description: 'Run the JMeter load suite after the e2e tests.')
+
+        // Off by default: publishing and deploying are not what a branch build wants.
+        booleanParam(name: 'DEPLOY', defaultValue: false,
+                     description: 'Push images to GHCR and deploy them to the EC2 host.')
+
+        // Destructive: db-init deletes and rebuilds. Required on the first deploy only.
+        booleanParam(name: 'SEED_REMOTE_DB', defaultValue: false,
+                     description: 'WIPES the deployed database and reseeds it. First deploy only.')
+
+        // A parameter, not a constant: the public IP changes on stop/start
+        // unless an Elastic IP is attached.
+        string(name: 'DEPLOY_HOST', defaultValue: '18.116.165.206',
+               description: 'Public IP or DNS of the deployment host.')
+
+        string(name: 'DEPLOY_USER', defaultValue: 'ec2-user',
+               description: 'SSH login for the deployment host.')
+    }
+
+    stages {
+        // No checkout stage: SCM mode clones before this file is evaluated.
+
+        stage('Clean reports') {
+            steps {
+                // All four suites merge into one allure-results, so wipe once here.
+                bat 'if exist allure-results rmdir /s /q allure-results'
+                bat 'if exist allure-report rmdir /s /q allure-report'
+                bat 'if exist htmlcov rmdir /s /q htmlcov'
+                bat 'if exist pytest-results.xml del /q pytest-results.xml'
+            }
+        }
+
+        stage('Test database') {
+            steps {
+                // Defensive: a build killed mid-run leaves the container behind.
+                bat returnStatus: true, script: 'docker rm -f %TEST_DB_NAME%'
+
+                bat 'docker run -d --name %TEST_DB_NAME% -p %TEST_DB_PORT%:5432 ' +
+                    '-e POSTGRES_DB=expense_manager -e POSTGRES_USER=%TEST_POSTGRES_USER% ' +
+                    '-e POSTGRES_PASSWORD=%TEST_POSTGRES_PASSWORD% postgres:17-alpine'
+
+                // A goto loop, not a for loop: each pass is re-parsed, so the
+                // counter expands freshly without delayed expansion.
+                bat '''
+                    set TRIES=0
+                    :waitdb
+                    docker exec %TEST_DB_NAME% pg_isready -U %TEST_POSTGRES_USER% -d expense_manager >nul 2>&1 && goto dbready
+                    set /a TRIES+=1
+                    if %TRIES% GEQ 60 (echo Test database never became ready & exit /b 1)
+                    rem ping, not `timeout`: timeout aborts when stdin is redirected, which it always is here.
+                    ping -n 3 127.0.0.1 >nul
+                    goto waitdb
+                    :dbready
+                    echo Test database ready on port %TEST_DB_PORT%
+                '''
+            }
+        }
+
+        stage('Test') {
+            parallel {
+                stage('Java') {
+                    steps {
+                        dir('manager-app') {
+                            // `test` not `verify` (jmeter binds to verify); phase not goal (JaCoCo sets argLine).
+                            bat 'mvn -B test'
+                        }
+                    }
+                }
+
+                stage('Python') {
+                    steps {
+                        // `py -3` not `python`: python resolves to the MS Store stub.
+                        bat 'if not exist .venv py -3 -m venv .venv'
+                        bat '.venv\\Scripts\\python -m pip install -r requirements.txt --quiet --disable-pip-version-check'
+                        bat '.venv\\Scripts\\python -m pytest --junitxml=pytest-results.xml'
+                    }
+                }
+            }
+        }
+
+        // Explicit -f flags, not COMPOSE_FILE: its separator is OS-specific.
+
+        stage('Build images') {
+            steps {
+                // compose build, so contexts stay declared in one place.
+                bat 'docker compose -f compose.yaml -f compose.ci.yaml build'
+            }
+        }
+
+        stage('Seed database') {
+            steps {
+                // Defensive: a build killed mid-run leaves containers and a volume.
+                bat returnStatus: true,
+                    script: 'docker compose -f compose.yaml -f compose.ci.yaml down -v --remove-orphans'
+
+                // One-shot seeder; deletes and rebuilds the DB, so it runs before serving.
+                bat 'docker compose -f compose.yaml -f compose.ci.yaml --profile init run --rm db-init'
+            }
+        }
+
+        stage('Stack up') {
+            steps {
+                // --wait blocks on healthchecks; depends_on alone only waits for start.
+                bat 'docker compose -f compose.yaml -f compose.ci.yaml up -d --wait'
+            }
+        }
+
+        stage('Smoke test') {
+            steps {
+                // Direct to the APIs: the frontend bundle hardcodes 127.0.0.1:5000/:7001.
+                bat 'curl --fail --silent --show-error http://localhost:%MANAGER_PORT%/health'
+                bat 'curl --fail --silent --show-error http://localhost:%EMPLOYEE_PORT%/health'
+                bat 'curl --fail --silent --show-error --output NUL http://localhost:%FRONTEND_PORT%/'
+            }
+        }
+
+        stage('E2E') {
+            environment {
+                // DatabaseState shells out to `docker compose exec -T db-tools`
+                // from the repo root; this is how that subprocess finds both files.
+                // ';' is the Windows separator -- ':' elsewhere.
+                COMPOSE_FILE = 'compose.yaml;compose.ci.yaml'
+            }
+            steps {
+                dir('e2e-tests') {
+                    // One URL: every API call goes through the frontend's proxy.
+                    bat 'mvn -B test -De2e.base.url=http://127.0.0.1:%FRONTEND_PORT%/'
+                }
+            }
+        }
+
+        // After E2E: seeding for load replaces the baseline the e2e reset restores.
+        stage('Load test') {
+            when { expression { params.RUN_LOAD_TESTS } }
+            steps {
+                // Every run consumes the pending rows, so this is per-run, not setup.
+                bat 'docker compose -f compose.yaml -f compose.ci.yaml exec -T db-tools python /app/dbsetup/seed_load.py'
+
+                dir('load-tests') {
+                    // `clean`: JMeter refuses to write into a non-empty report dir.
+                    bat 'mvn -B clean verify ' +
+                        '-Dmanager.host=127.0.0.1 -Dmanager.port=%MANAGER_PORT% ' +
+                        '-Demployee.host=127.0.0.1 -Demployee.port=%EMPLOYEE_PORT%'
+                }
+            }
+        }
+
+        stage('Publish images') {
+            when { expression { params.DEPLOY } }
+            steps {
+                // Images were already tagged for the registry by `compose build`.
+                withCredentials([usernamePassword(credentialsId: 'ghcr',
+                                                  usernameVariable: 'REG_USER',
+                                                  passwordVariable: 'REG_TOKEN')]) {
+                    // --password-stdin: an argv password lands in the process list.
+                    bat 'echo %REG_TOKEN%| docker login ghcr.io -u %REG_USER% --password-stdin'
+                }
+                bat 'docker push %REGISTRY%/expense-db-init:%IMAGE_TAG%'
+                bat 'docker push %REGISTRY%/expense-employee-api:%IMAGE_TAG%'
+                bat 'docker push %REGISTRY%/expense-manager-api:%IMAGE_TAG%'
+                bat 'docker push %REGISTRY%/expense-frontend:%IMAGE_TAG%'
+            }
+        }
+
+        stage('Deploy') {
+            when { expression { params.DEPLOY } }
+            steps {
+                withCredentials([sshUserPrivateKey(credentialsId: 'ec2-deploy-key',
+                                                   keyFileVariable: 'SSH_KEY'),
+                                 usernamePassword(credentialsId: 'ghcr',
+                                                  usernameVariable: 'REG_USER',
+                                                  passwordVariable: 'REG_TOKEN'),
+                                 // Bound here rather than in `environment`, so a build
+                                 // that is not deploying does not require the credential.
+                                 string(credentialsId: 'postgres-password',
+                                        variable: 'POSTGRES_PASSWORD')]) {
+
+                    // Windows OpenSSH rejects a key others can read, and Jenkins' temp
+                    // file inherits the workspace ACL. Strip it down to this account.
+                    // Full control, not read: Jenkins must still delete the file after.
+                    bat 'icacls "%SSH_KEY%" /inheritance:r /grant:r "%USERNAME%":F'
+
+                    bat 'ssh -i "%SSH_KEY%" -o StrictHostKeyChecking=accept-new ' +
+                        '%DEPLOY_USER%@%DEPLOY_HOST% "mkdir -p ~/expense-manager"'
+
+                    bat 'scp -i "%SSH_KEY%" -o StrictHostKeyChecking=accept-new compose.prod.yaml ' +
+                        '%DEPLOY_USER%@%DEPLOY_HOST%:~/expense-manager/compose.yaml'
+
+                    // Secrets over stdin, never argv: argv is world-readable in `ps`.
+                    bat '(echo REGISTRY=%REGISTRY%' +
+                        '& echo IMAGE_TAG=%IMAGE_TAG%' +
+                        '& echo PUBLIC_HOST=%DEPLOY_HOST%' +
+                        '& echo JWT_SECRET=%JWT_SECRET%' +
+                        '& echo JWT_EXPIRATION_HOURS=%JWT_EXPIRATION_HOURS%' +
+                        // Baked into the volume at initdb. Changing it later does not
+                        // change the database -- see the note in compose.prod.yaml.
+                        '& echo POSTGRES_PASSWORD=%POSTGRES_PASSWORD%' +
+                        ') | ssh -i "%SSH_KEY%" %DEPLOY_USER%@%DEPLOY_HOST% "cat > ~/expense-manager/.env"'
+
+                    bat 'echo %REG_TOKEN%| ssh -i "%SSH_KEY%" %DEPLOY_USER%@%DEPLOY_HOST% ' +
+                        '"docker login ghcr.io -u %REG_USER% --password-stdin"'
+
+                    bat 'ssh -i "%SSH_KEY%" %DEPLOY_USER%@%DEPLOY_HOST% ' +
+                        '"cd ~/expense-manager && docker compose pull"'
+
+                    // Guarded: the volume is empty on a first deploy and the APIs
+                    // cannot start without a database, but this wipes an existing one.
+                    script {
+                        if (params.SEED_REMOTE_DB) {
+                            bat 'ssh -i "%SSH_KEY%" %DEPLOY_USER%@%DEPLOY_HOST% ' +
+                                '"cd ~/expense-manager && docker compose --profile init run --rm db-init"'
+                        }
+                    }
+
+                    // --wait blocks on the same healthchecks CI used.
+                    bat 'ssh -i "%SSH_KEY%" %DEPLOY_USER%@%DEPLOY_HOST% ' +
+                        '"cd ~/expense-manager && docker compose up -d --wait --remove-orphans"'
+                }
+            }
+        }
+
+        stage('Verify deployment') {
+            when { expression { params.DEPLOY } }
+            steps {
+                // Against the public IP: proves the SG and the proxy, not just the container.
+                bat 'curl --fail --silent --show-error --max-time 20 http://%DEPLOY_HOST%/api/manager/health'
+                bat 'curl --fail --silent --show-error --max-time 20 http://%DEPLOY_HOST%/api/employee/health'
+                bat 'curl --fail --silent --show-error --max-time 20 --output NUL http://%DEPLOY_HOST%/'
+            }
+        }
+    }
+
+    post {
+        always {
+            // Collect evidence before `down -v` destroys what holds it.
+            bat returnStatus: true,
+                script: 'docker compose -f compose.yaml -f compose.ci.yaml logs --no-color > docker-logs.txt 2>&1'
+            archiveArtifacts artifacts: 'docker-logs.txt', allowEmptyArchive: true
+
+            // JMeter writes its own dashboard; Allure never sees these.
+            archiveArtifacts artifacts: 'load-tests/target/jmeter/reports/**, load-tests/target/jmeter/results/*.csv',
+                             allowEmptyArchive: true
+
+            // returnStatus so teardown failure cannot mask the real one.
+            bat returnStatus: true,
+                script: 'docker compose -f compose.yaml -f compose.ci.yaml down -v --remove-orphans'
+
+            // Not part of the compose project, so `down -v` does not reach it.
+            bat returnStatus: true, script: 'docker rm -f %TEST_DB_NAME%'
+
+            junit allowEmptyResults: true,
+                  testResults: 'manager-app/target/surefire-reports/*.xml, e2e-tests/target/surefire-reports/*.xml, pytest-results.xml'
+
+            allure commandline: 'allure',
+                   includeProperties: false,
+                   jdk: '',
+                   results: [[path: 'allure-results']]
+        }
+    }
+}

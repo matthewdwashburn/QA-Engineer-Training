@@ -1,0 +1,8 @@
+﻿TC ID,Title ,Type,Requirement
+TC-AUTH-001,Reset email successfully sent,Positive,AUTH-77-AC-1
+TC-AUTH-002,Reset email arrivates within exactly 2 minutes,Boundary,AUTH-77-AC-1
+TC-AUTH-003,Invalid email returns generic success message,Negative,AUTH-77-AC-2
+TC-AUTH-004,User reset link rejected,Negative,AUTH-77-AC-3
+TC-AUTH-006,Reset link used first time successfully,Positive,AUTH-77-AC-3
+TC-AUTH-005,Password shorter than 12 rejected,Boundary,AUTH-77-AC-4
+TC-AUTH-007,Valid 12-character password accepted,Positive,AUTH-77-AC-4
