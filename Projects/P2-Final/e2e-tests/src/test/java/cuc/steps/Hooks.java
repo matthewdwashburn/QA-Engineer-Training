@@ -19,6 +19,13 @@ import io.qameta.allure.model.Label;
  */
 public class Hooks {
 
+    /** -De2e.headless=true. Set by CI; left off locally so the run is watchable. */
+    private static final String HEADLESS_PROPERTY = "e2e.headless";
+
+    // Matches the maximized viewport on a 1080p dev machine, so a scenario that
+    // passes locally does not fail in CI on an element pushed below the fold.
+    private static final String HEADLESS_WINDOW_SIZE = "1920,1080";
+
     private final TestContext context;
 
     public Hooks(TestContext context) {
@@ -62,8 +69,23 @@ public class Hooks {
         ));
         options.addArguments("--disable-features=PasswordLeakDetection,AutofillServerCommunication");
 
+        // Opt-in, so running locally still gives you a visible browser to watch.
+        // The CI agent is a display-less EC2 host, where Chrome cannot start at all.
+        boolean headless = Boolean.getBoolean(HEADLESS_PROPERTY);
+        if (headless) {
+            options.addArguments("--headless=new");
+            // maximize() is a no-op without a window manager, so the viewport
+            // would default to 800x600 and responsive layouts would hide elements.
+            options.addArguments("--window-size=" + HEADLESS_WINDOW_SIZE);
+            // Chrome sizes its renderer's shared memory off /dev/shm, which is
+            // small on EC2 and tiny in a container; without this tabs crash.
+            options.addArguments("--disable-dev-shm-usage");
+        }
+
         ChromeDriver driver = new ChromeDriver(options);
-        driver.manage().window().maximize();
+        if (!headless) {
+            driver.manage().window().maximize();
+        }
         context.setDriver(driver);
     }
 

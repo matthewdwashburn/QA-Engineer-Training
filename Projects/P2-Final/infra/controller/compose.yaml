@@ -1,0 +1,57 @@
+# Jenkins controller, EC2 edition. Supersedes jenkins/compose.yaml, which bound
+# to localhost only. The differences from that file are all consequences of
+# being reachable from the internet: a TLS terminator in front, and Jenkins
+# itself no longer publishing a port to the host.
+#
+# Still NOT here, deliberately: the Docker socket. The controller never builds
+# an image or runs a container -- that is the agent's job, and the agent is a
+# different EC2 instance. Mounting the socket here would hand any pipeline root
+# on the box that holds JENKINS_HOME.
+
+name: jenkins-ci
+
+services:
+  controller:
+    image: jenkins/jenkins:lts-jdk21
+    # No `ports` for 8080: Caddy reaches it over the compose network instead, so
+    # the only way in from outside is through TLS.
+    expose:
+      - "8080"
+    ports:
+      # Inbound (JNLP) agent port. The build agent dials in on this.
+      - "50000:50000"
+    environment:
+      # Jenkins builds absolute URLs (webhook targets, email links) from this.
+      JENKINS_URL: ${JENKINS_URL:?set JENKINS_URL in .env}
+      # Java's own DNS cache is infinite by default for successful lookups,
+      # which breaks agent reconnects if the agent's IP ever changes.
+      JAVA_OPTS: -Dnetworkaddress.cache.ttl=60 -Djenkins.install.runSetupWizard=false
+    volumes:
+      # Named volume, not a bind mount: JENKINS_HOME holds the credential store
+      # and master key, and Jenkins expects POSIX permissions on secrets/.
+      - jenkins-home:/var/jenkins_home
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      # A real DNS name gets an automatic Let's Encrypt cert. Anything else
+      # falls back to plain HTTP -- see the Caddyfile for why.
+      JENKINS_DOMAIN: ${JENKINS_DOMAIN:-:80}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Persisted, or every restart re-requests a cert and burns Let's Encrypt
+      # rate limit (5 duplicate certs per week).
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - controller
+    restart: unless-stopped
+
+volumes:
+  jenkins-home:
+  caddy-data:
+  caddy-config:

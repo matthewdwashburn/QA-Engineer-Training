@@ -46,3 +46,6 @@ htmlcov/
 .pytest_cache/
 allure-results/
 allure-report/
+
+# JENKINS_HOME migration archive: contains master.key and credentials.xml
+jenkins-home.tgz

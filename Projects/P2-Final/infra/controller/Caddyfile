@@ -1,0 +1,29 @@
+# Caddy fronts Jenkins so credentials and the webhook secret are not sent in
+# cleartext. Caddy requests and renews the certificate on its own; there is no
+# certbot step and no cron entry.
+#
+# JENKINS_DOMAIN must be a real DNS name for that to happen. Let's Encrypt
+# refuses to issue for *.compute.amazonaws.com -- it is on the Public Suffix
+# List -- so the EC2 hostname AWS gives you will NOT work here. A free
+# duckdns.org name does, and so does a Route 53 domain.
+#
+# Left unset, JENKINS_DOMAIN defaults to ":80" and this serves plain HTTP. That
+# is a fallback for getting the box up, not a resting state: on HTTP your login
+# and GitHub's webhook secret cross the internet in the clear.
+
+{$JENKINS_DOMAIN} {
+	# The compose service name; Jenkins publishes no host port of its own.
+	reverse_proxy controller:8080 {
+		# Jenkins rejects requests whose Host header disagrees with its own idea
+		# of the URL; these are what make the two agree through the proxy.
+		header_up Host {upstream_hostport}
+		header_up X-Real-IP {remote_host}
+	}
+
+	encode gzip
+
+	log {
+		output file /data/access.log
+		format console
+	}
+}
